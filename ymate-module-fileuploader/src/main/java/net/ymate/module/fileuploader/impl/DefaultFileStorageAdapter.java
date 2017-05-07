@@ -1,0 +1,143 @@
+/*
+ * Copyright 2007-2017 the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package net.ymate.module.fileuploader.impl;
+
+import net.ymate.framework.commons.DateTimeHelper;
+import net.ymate.module.fileuploader.FileUploader;
+import net.ymate.module.fileuploader.IFileStorageAdapter;
+import net.ymate.module.fileuploader.IFileUploader;
+import net.ymate.module.fileuploader.IFileUploaderModuleCfg;
+import net.ymate.platform.core.lang.BlurObject;
+import net.ymate.platform.core.lang.PairObject;
+import net.ymate.platform.core.util.DateTimeUtils;
+import net.ymate.platform.core.util.FileUtils;
+import net.ymate.platform.webmvc.IUploadFileWrapper;
+import org.apache.commons.codec.digest.DigestUtils;
+import org.apache.commons.lang.StringUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
+import java.io.File;
+
+/**
+ * @author 刘镇 (suninformation@163.com) on 16/3/31 上午1:50
+ * @version 1.0
+ */
+public class DefaultFileStorageAdapter implements IFileStorageAdapter {
+
+    private static final Log _LOG = LogFactory.getLog(DefaultFileStorageAdapter.class);
+
+    private IFileUploader __owner;
+
+    public void init(IFileUploader owner) throws Exception {
+        __owner = owner;
+    }
+
+    public boolean isFileExists(String hash, String sourcePath) {
+        File _target = new File(__owner.getModuleCfg().getFileStoragePath(), sourcePath);
+        return _target.exists() && _target.isFile();
+    }
+
+    public PairObject<Integer, String> saveFile(String hash, IUploadFileWrapper file) throws Exception {
+        IFileUploader.ResourceType _fileType = IFileUploader.ResourceType.valueOf(StringUtils.substringBefore(file.getContentType(), "/").toUpperCase());
+        // 转存文件，路径格式：{TYPE_NAME}/{octal_yyyy}/{MMdd}/{HHmmss}_{FILE_HASH_8BIT}_{NODE_ID}
+        StringBuilder _sourcePath = new StringBuilder(_fileType.name().toLowerCase())
+                .append(File.separator)
+                .append(Integer.toOctalString(DateTimeHelper.now().year()))
+                .append(DateTimeUtils.formatTime(System.currentTimeMillis(), File.separator + "MMdd" + File.separator + "HHmmss_"))
+                .append(StringUtils.substring(hash, 0, 8))
+                .append("_").append(StringUtils.substring(DigestUtils.md5Hex(__owner.getModuleCfg().getNodeId()), 0, 8));
+        // 检查并创建目标目录
+        String _extension = StringUtils.trimToNull(FileUtils.getExtName(file.getName()));
+        _sourcePath.append(_extension == null ? "" : "." + _extension);
+        String _sourcePathStr = _sourcePath.toString();
+        File _targetFile = new File(__owner.getModuleCfg().getFileStoragePath(), _sourcePathStr);
+        org.apache.commons.io.FileUtils.copyInputStreamToFile(file.getInputStream(), _targetFile);
+        //
+        createThumbFiles(_targetFile);
+        //
+        return new PairObject<Integer, String>(_fileType.type(), _sourcePathStr);
+    }
+
+    public void createThumbFiles(File sourceFile) {
+        // 判断是否允许自定义缩略图尺寸
+        if (__owner.getModuleCfg().isAllowCustomThumbSize() && !__owner.getModuleCfg().getThumbSizeList().isEmpty()) {
+            try {
+                BufferedImage _bufferedImg = ImageIO.read(sourceFile);
+                if (_bufferedImg != null) {
+                    int _oWidth = _bufferedImg.getWidth();
+                    int _oHeight = _bufferedImg.getHeight();
+                    //
+                    for (String _thumbSize : __owner.getModuleCfg().getThumbSizeList()) {
+                        String[] _sizeArr = StringUtils.split(_thumbSize, "_");
+                        // 调整宽高参数, 超出原图将不处理
+                        int _width = BlurObject.bind(_sizeArr[0]).toIntValue();
+                        _width = _width >= _oWidth ? _oWidth : _width;
+                        //
+                        int _height = BlurObject.bind(_sizeArr[1]).toIntValue();
+                        _height = _height >= _oHeight ? _oHeight : _height;
+                        //
+                        float _quality = __owner.getModuleCfg().getThumbQuality();
+                        if (_quality == 0f) {
+                            _quality = 0.72f;
+                        }
+                        //
+                        String _thumbFileName = sourceFile.getName().concat("_" + _thumbSize + "_" + BlurObject.bind(_quality * 100).toIntValue());
+                        String _extension = StringUtils.trimToNull(FileUtils.getExtName(sourceFile.getName()));
+                        if (StringUtils.isNotBlank(_extension)) {
+                            File _thumbFile = new File(sourceFile.getParent(), _thumbFileName);
+                            if (!_thumbFile.exists()) {
+                                __owner.getModuleCfg().getImageFileProcessor().resize(_bufferedImg, _thumbFile, _width, _height, _quality, _extension);
+                            }
+                        }
+                    }
+                }
+            } catch (Exception e) {
+                _LOG.warn("", e);
+            }
+        }
+    }
+
+    public File readFile(String hash, String sourcePath) {
+        IFileUploaderModuleCfg _cfg = FileUploader.get().getModuleCfg();
+        return new File(_cfg.getFileStoragePath(), sourcePath);
+    }
+
+    public File readThumb(IFileUploader.ResourceType resourceType, String hash, String sourcePath, int width, int height) {
+        File _targetFile = new File(__owner.getModuleCfg().getFileStoragePath(), sourcePath);
+        if (_targetFile.exists()) {
+            if (width != 0 || height != 0) {
+                String _thumbSize = width + "_" + height;
+                // 若缩略图尺寸列表不为空且预处理的尺寸不在列表中存在, 则返回null
+                if (!__owner.getModuleCfg().getThumbSizeList().isEmpty() && !__owner.getModuleCfg().getThumbSizeList().contains(_thumbSize)) {
+                    return null;
+                }
+                String _thumbFileName = StringUtils.substringBeforeLast(sourcePath, ".").concat("_" + _thumbSize);
+                String _extension = StringUtils.trimToNull(FileUtils.getExtName(sourcePath));
+                if (StringUtils.isNotBlank(_extension)) {
+                    _thumbFileName = _thumbFileName.concat(".").concat(_extension);
+                    File _thumbFile = new File(__owner.getModuleCfg().getFileStoragePath(), _thumbFileName);
+                    if (!_thumbFile.exists()) {
+                        _targetFile = _thumbFile;
+                    }
+                }
+            }
+        }
+        return _targetFile;
+    }
+}
