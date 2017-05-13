@@ -1,10 +1,7 @@
 package net.ymate.module.fileuploader.model;
 
 import net.ymate.platform.core.beans.annotation.PropertyState;
-import net.ymate.platform.persistence.annotation.Default;
-import net.ymate.platform.persistence.annotation.Entity;
-import net.ymate.platform.persistence.annotation.Id;
-import net.ymate.platform.persistence.annotation.Property;
+import net.ymate.platform.persistence.annotation.*;
 import net.ymate.platform.persistence.jdbc.support.BaseEntity;
 
 /**
@@ -39,7 +36,7 @@ public class Attachment extends BaseEntity<Attachment, java.lang.String> {
     @PropertyState(propertyName = "source_path")
     private java.lang.String sourcePath;
 
-    @Property(name = "extension", nullable = false, length = 10)
+    @Property(name = "extension", length = 10)
     @PropertyState(propertyName = "extension")
     private java.lang.String extension;
 
@@ -47,24 +44,28 @@ public class Attachment extends BaseEntity<Attachment, java.lang.String> {
     @PropertyState(propertyName = "mime_type")
     private java.lang.String mimeType;
 
-    @Property(name = "size", nullable = false, length = 20)
+    @Property(name = "size", length = 20)
     @Default("0")
     @PropertyState(propertyName = "size")
     private java.lang.Long size;
 
-    @Property(name = "status", nullable = false, unsigned = true, length = 2)
+    @Property(name = "status", unsigned = true, length = 2)
     @Default("0")
     @PropertyState(propertyName = "status")
     private java.lang.Integer status;
 
-    @Property(name = "type", nullable = false, unsigned = true, length = 2)
+    @Property(name = "type", unsigned = true, length = 2)
     @Default("0")
     @PropertyState(propertyName = "type")
     private java.lang.Integer type;
 
-    @Property(name = "site_id", length = 32)
+    @Property(name = "site_id", nullable = false, length = 32)
     @PropertyState(propertyName = "site_id")
     private java.lang.String siteId;
+
+    @Property(name = "owner", length = 32)
+    @PropertyState(propertyName = "owner")
+    private java.lang.String owner;
 
     @Property(name = "serial_attrs", length = 16383)
     @PropertyState(propertyName = "serial_attrs")
@@ -72,9 +73,10 @@ public class Attachment extends BaseEntity<Attachment, java.lang.String> {
 
     @Property(name = "create_time", nullable = false, length = 13)
     @PropertyState(propertyName = "create_time")
+    @Readonly
     private java.lang.Long createTime;
 
-    @Property(name = "last_modify_time", nullable = false, length = 13)
+    @Property(name = "last_modify_time", length = 13)
     @Default("0")
     @PropertyState(propertyName = "last_modify_time")
     private java.lang.Long lastModifyTime;
@@ -92,26 +94,18 @@ public class Attachment extends BaseEntity<Attachment, java.lang.String> {
      * @param hash
      * @param uid
      * @param sourcePath
-     * @param extension
      * @param mimeType
-     * @param size
-     * @param status
-     * @param type
+     * @param siteId
      * @param createTime
-     * @param lastModifyTime
      */
-    public Attachment(java.lang.String id, java.lang.String hash, java.lang.String uid, java.lang.String sourcePath, java.lang.String extension, java.lang.String mimeType, java.lang.Long size, java.lang.Integer status, java.lang.Integer type, java.lang.Long createTime, java.lang.Long lastModifyTime) {
+    public Attachment(java.lang.String id, java.lang.String hash, java.lang.String uid, java.lang.String sourcePath, java.lang.String mimeType, java.lang.String siteId, java.lang.Long createTime) {
         this.id = id;
         this.hash = hash;
         this.uid = uid;
         this.sourcePath = sourcePath;
-        this.extension = extension;
         this.mimeType = mimeType;
-        this.size = size;
-        this.status = status;
-        this.type = type;
+        this.siteId = siteId;
         this.createTime = createTime;
-        this.lastModifyTime = lastModifyTime;
     }
 
     /**
@@ -128,11 +122,12 @@ public class Attachment extends BaseEntity<Attachment, java.lang.String> {
      * @param status
      * @param type
      * @param siteId
+     * @param owner
      * @param serialAttrs
      * @param createTime
      * @param lastModifyTime
      */
-    public Attachment(java.lang.String id, java.lang.String hash, java.lang.String uid, java.lang.String staticUrl, java.lang.String sourcePath, java.lang.String extension, java.lang.String mimeType, java.lang.Long size, java.lang.Integer status, java.lang.Integer type, java.lang.String siteId, java.lang.String serialAttrs, java.lang.Long createTime, java.lang.Long lastModifyTime) {
+    public Attachment(java.lang.String id, java.lang.String hash, java.lang.String uid, java.lang.String staticUrl, java.lang.String sourcePath, java.lang.String extension, java.lang.String mimeType, java.lang.Long size, java.lang.Integer status, java.lang.Integer type, java.lang.String siteId, java.lang.String owner, java.lang.String serialAttrs, java.lang.Long createTime, java.lang.Long lastModifyTime) {
         this.id = id;
         this.hash = hash;
         this.uid = uid;
@@ -144,6 +139,7 @@ public class Attachment extends BaseEntity<Attachment, java.lang.String> {
         this.status = status;
         this.type = type;
         this.siteId = siteId;
+        this.owner = owner;
         this.serialAttrs = serialAttrs;
         this.createTime = createTime;
         this.lastModifyTime = lastModifyTime;
@@ -296,6 +292,20 @@ public class Attachment extends BaseEntity<Attachment, java.lang.String> {
      */
     public void setSiteId(java.lang.String siteId) {
         this.siteId = siteId;
+    }
+
+    /**
+     * @return the owner
+     */
+    public java.lang.String getOwner() {
+        return owner;
+    }
+
+    /**
+     * @param owner the owner to set
+     */
+    public void setOwner(java.lang.String owner) {
+        this.owner = owner;
     }
 
     /**
@@ -468,6 +478,15 @@ public class Attachment extends BaseEntity<Attachment, java.lang.String> {
             return this;
         }
 
+        public java.lang.String owner() {
+            return _model.getOwner();
+        }
+
+        public AttachmentBuilder owner(java.lang.String owner) {
+            _model.setOwner(owner);
+            return this;
+        }
+
         public java.lang.String serialAttrs() {
             return _model.getSerialAttrs();
         }
@@ -512,6 +531,7 @@ public class Attachment extends BaseEntity<Attachment, java.lang.String> {
         public static final String STATUS = "status";
         public static final String TYPE = "type";
         public static final String SITE_ID = "site_id";
+        public static final String OWNER = "owner";
         public static final String SERIAL_ATTRS = "serial_attrs";
         public static final String CREATE_TIME = "create_time";
         public static final String LAST_MODIFY_TIME = "last_modify_time";

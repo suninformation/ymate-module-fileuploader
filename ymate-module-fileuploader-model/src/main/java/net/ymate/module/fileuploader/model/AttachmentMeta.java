@@ -1,10 +1,7 @@
 package net.ymate.module.fileuploader.model;
 
 import net.ymate.platform.core.beans.annotation.PropertyState;
-import net.ymate.platform.persistence.annotation.Default;
-import net.ymate.platform.persistence.annotation.Entity;
-import net.ymate.platform.persistence.annotation.Id;
-import net.ymate.platform.persistence.annotation.Property;
+import net.ymate.platform.persistence.annotation.*;
 import net.ymate.platform.persistence.jdbc.support.BaseEntity;
 
 /**
@@ -23,12 +20,12 @@ public class AttachmentMeta extends BaseEntity<AttachmentMeta, java.lang.String>
     @PropertyState(propertyName = "id")
     private java.lang.String id;
 
-    @Property(name = "usage_size", nullable = false, length = 20)
+    @Property(name = "usage_size", length = 20)
     @Default("0")
     @PropertyState(propertyName = "usage_size")
     private java.lang.Long usageSize;
 
-    @Property(name = "max_size", nullable = false, length = 20)
+    @Property(name = "max_size", length = 20)
     @Default("0")
     @PropertyState(propertyName = "max_size")
     private java.lang.Long maxSize;
@@ -39,9 +36,10 @@ public class AttachmentMeta extends BaseEntity<AttachmentMeta, java.lang.String>
 
     @Property(name = "create_time", nullable = false, length = 13)
     @PropertyState(propertyName = "create_time")
+    @Readonly
     private java.lang.Long createTime;
 
-    @Property(name = "last_modify_time", nullable = false, length = 13)
+    @Property(name = "last_modify_time", length = 13)
     @Default("0")
     @PropertyState(propertyName = "last_modify_time")
     private java.lang.Long lastModifyTime;
@@ -52,6 +50,18 @@ public class AttachmentMeta extends BaseEntity<AttachmentMeta, java.lang.String>
     public AttachmentMeta() {
     }
 
+    /**
+     * 构造器
+     *
+     * @param id
+     * @param siteId
+     * @param createTime
+     */
+    public AttachmentMeta(java.lang.String id, java.lang.String siteId, java.lang.Long createTime) {
+        this.id = id;
+        this.siteId = siteId;
+        this.createTime = createTime;
+    }
 
     /**
      * 构造器

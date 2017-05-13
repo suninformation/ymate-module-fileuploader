@@ -35,7 +35,7 @@ public class AttachmentAttribute extends BaseEntity<AttachmentAttribute, java.la
     @PropertyState(propertyName = "attr_value")
     private java.lang.String attrValue;
 
-    @Property(name = "type", nullable = false, unsigned = true, length = 2)
+    @Property(name = "type", unsigned = true, length = 2)
     @Default("0")
     @PropertyState(propertyName = "type")
     private java.lang.Integer type;
@@ -56,13 +56,11 @@ public class AttachmentAttribute extends BaseEntity<AttachmentAttribute, java.la
      * @param id
      * @param attachmentId
      * @param attrKey
-     * @param type
      */
-    public AttachmentAttribute(java.lang.String id, java.lang.String attachmentId, java.lang.String attrKey, java.lang.Integer type) {
+    public AttachmentAttribute(java.lang.String id, java.lang.String attachmentId, java.lang.String attrKey) {
         this.id = id;
         this.attachmentId = attachmentId;
         this.attrKey = attrKey;
-        this.type = type;
     }
 
     /**
