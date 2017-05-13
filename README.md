@@ -1,6 +1,15 @@
-### FileUploader
+### YMP-FileUploader
 
-基于YMP框架实现的文件上传及资源访问服务模块；
+> 文件上传及资源访问服务模块，特性如下：
+> 
+> - 支持文件指纹匹配，秒传；
+> - 支持图片文件多种规则等比例压缩；
+> - 支持视频文件截图；
+> - 支持上传文件`ContentType`白名单过滤；
+> - 支持主从负载模式配置；
+> - 支持自定义响应报文内容(如:百度编辑器文件上传成功响应JSON报文结构)；
+> - 支持自定义扩展文件存储策略；
+> - 支持跨域上传文件及用户身份验证；
 
 #### Maven包依赖
 
@@ -48,6 +57,40 @@
     
     # 允许上传的文件ContentType列表, 如: image/png|image/jpeg, 默认值: 空, 表示不限制
     ymp.configs.module.fileuploader.allow_content_types=
+
+#### 示例代码：
+
+- 上传文件，以POST方式请求URL地址：
+
+        http://localhost:8080/uploads/push
+    
+    > 参数说明：
+    >
+    > - file: 上传文件流数据；
+    > - type: 指定请求结果处理器，若未提供则采用默认，可选值：`fileupload`、`baidu` 
+
+- 文件指纹匹配，以POST方式请求URL地址：
+
+        http://localhost:8080/uploads/match
+    
+    > 参数说明：
+    >
+    > - hash: 文件哈希值(MD5)，必选参数；
+    
+    返回值：若匹配成功则返回该资源访问URL地址；
+    
+        {"ret":0, "matched":true, "data":"http://localhost:8080/uploads/resources/image/6146aaafbadb1f3ada6b12190e8c4771"}
+
+- 文件资源访问，以GET方式请求URL地址：
+
+        http://localhost:8080/uploads/resources/{type}/{hash}
+
+    > 参数说明：
+    >
+    > - type: 文件类型，必选参数，可选值：`image`、 `video`、`audio`、`text`、`application`、`thumb`
+    > - hash: 文件哈希值(MD5)，必选参数；
+    >
+    > **注**：若需要强制浏览器下载资源，只需在请求参数中添加`?attach`即可；
 
 #### One More Thing
 
