@@ -22,9 +22,9 @@ import net.ymate.framework.webmvc.WebResult;
 import net.ymate.framework.webmvc.intercept.AjaxAllowCrossDomainInterceptor;
 import net.ymate.framework.webmvc.intercept.UserSessionCheckInterceptor;
 import net.ymate.module.fileuploader.*;
-import net.ymate.module.fileuploader.repository.IAttachmentRepository;
 import net.ymate.module.fileuploader.model.Attachment;
-import net.ymate.platform.core.beans.annotation.After;
+import net.ymate.module.fileuploader.repository.IAttachmentRepository;
+import net.ymate.platform.core.beans.annotation.Around;
 import net.ymate.platform.core.beans.annotation.Before;
 import net.ymate.platform.core.beans.annotation.Clean;
 import net.ymate.platform.core.beans.annotation.Inject;
@@ -60,8 +60,8 @@ import java.util.concurrent.TimeUnit;
  */
 @Controller
 @RequestMapping("/uploads")
-@Before({AjaxAllowCrossDomainInterceptor.class, UserSessionCheckInterceptor.class})
-@After(AjaxAllowCrossDomainInterceptor.class)
+@Around(AjaxAllowCrossDomainInterceptor.class)
+@Before(UserSessionCheckInterceptor.class)
 public class UploadController {
 
     @Inject
