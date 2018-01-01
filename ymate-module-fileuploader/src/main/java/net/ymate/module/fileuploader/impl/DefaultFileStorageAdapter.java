@@ -77,40 +77,49 @@ public class DefaultFileStorageAdapter implements IFileStorageAdapter {
     public void createThumbFiles(File sourceFile) {
         // 判断是否允许自定义缩略图尺寸
         if (__owner.getModuleCfg().isAllowCustomThumbSize() && !__owner.getModuleCfg().getThumbSizeList().isEmpty()) {
-            try {
-                BufferedImage _bufferedImg = ImageIO.read(sourceFile);
-                if (_bufferedImg != null) {
-                    int _oWidth = _bufferedImg.getWidth();
-                    int _oHeight = _bufferedImg.getHeight();
-                    //
-                    for (String _thumbSize : __owner.getModuleCfg().getThumbSizeList()) {
-                        String[] _sizeArr = StringUtils.split(_thumbSize, "_");
-                        // 调整宽高参数, 超出原图将不处理
-                        int _width = BlurObject.bind(_sizeArr[0]).toIntValue();
-                        _width = _width >= _oWidth ? _oWidth : _width;
-                        //
-                        int _height = BlurObject.bind(_sizeArr[1]).toIntValue();
-                        _height = _height >= _oHeight ? _oHeight : _height;
-                        //
-                        float _quality = __owner.getModuleCfg().getThumbQuality();
-                        if (_quality == 0f) {
-                            _quality = 0.72f;
-                        }
-                        //
-                        String _thumbFileName = sourceFile.getName().concat("_" + _thumbSize + "_" + BlurObject.bind(_quality * 100).toIntValue());
-                        String _extension = StringUtils.trimToNull(FileUtils.getExtName(sourceFile.getName()));
-                        if (StringUtils.isNotBlank(_extension)) {
-                            File _thumbFile = new File(sourceFile.getParent(), _thumbFileName);
-                            if (!_thumbFile.exists()) {
-                                __owner.getModuleCfg().getImageFileProcessor().resize(_bufferedImg, _thumbFile, _width, _height, _quality, _extension);
-                            }
-                        }
-                    }
-                }
-            } catch (Exception e) {
-                _LOG.warn("", e);
+            for (String _thumbSize : __owner.getModuleCfg().getThumbSizeList()) {
+                String[] _sizeArr = StringUtils.split(_thumbSize, "_");
+                // 调整宽高参数, 超出原图将不处理
+                int _width = BlurObject.bind(_sizeArr[0]).toIntValue();
+                int _height = BlurObject.bind(_sizeArr[1]).toIntValue();
+                //
+                createThumbFileIfNeed(sourceFile, _width, _height);
             }
         }
+    }
+
+    private File createThumbFileIfNeed(File sourceFile, int width, int height) {
+        try {
+            BufferedImage _bufferedImg = ImageIO.read(sourceFile);
+            if (_bufferedImg != null) {
+                int _oWidth = _bufferedImg.getWidth();
+                int _oHeight = _bufferedImg.getHeight();
+                // 调整宽高参数, 超出原图将不处理
+                _oWidth = width >= _oWidth ? _oWidth : width;
+                _oHeight = height >= _oHeight ? _oHeight : height;
+                //
+                float quality = __owner.getModuleCfg().getThumbQuality();
+                if (quality <= 0f) {
+                    quality = 0.72f;
+                }
+                //
+                String _thumbSize = _oWidth + "_" + _oHeight;
+                String _thumbFileName = sourceFile.getName().concat("_" + _thumbSize + "_" + BlurObject.bind(quality * 100).toIntValue());
+                String _extension = StringUtils.trimToNull(FileUtils.getExtName(sourceFile.getName()));
+                if (StringUtils.isNotBlank(_extension)) {
+                    File _thumbFile = new File(sourceFile.getParent(), _thumbFileName);
+                    if (!_thumbFile.exists() && __owner.getModuleCfg().isAllowCustomThumbSize() && __owner.getModuleCfg().getThumbSizeList().contains(_thumbSize)) {
+                        if (!__owner.getModuleCfg().getImageFileProcessor().resize(_bufferedImg, _thumbFile, _oWidth, _oHeight, quality, _extension)) {
+                            return null;
+                        }
+                    }
+                    return _thumbFile;
+                }
+            }
+        } catch (Exception e) {
+            _LOG.warn("", e);
+        }
+        return null;
     }
 
     public File readFile(String hash, String sourcePath) {
@@ -122,19 +131,9 @@ public class DefaultFileStorageAdapter implements IFileStorageAdapter {
         File _targetFile = new File(__owner.getModuleCfg().getFileStoragePath(), sourcePath);
         if (_targetFile.exists()) {
             if (width != 0 || height != 0) {
-                String _thumbSize = width + "_" + height;
-                // 若缩略图尺寸列表不为空且预处理的尺寸不在列表中存在, 则返回null
-                if (!__owner.getModuleCfg().getThumbSizeList().isEmpty() && !__owner.getModuleCfg().getThumbSizeList().contains(_thumbSize)) {
-                    return null;
-                }
-                String _thumbFileName = StringUtils.substringBeforeLast(sourcePath, ".").concat("_" + _thumbSize);
-                String _extension = StringUtils.trimToNull(FileUtils.getExtName(sourcePath));
-                if (StringUtils.isNotBlank(_extension)) {
-                    _thumbFileName = _thumbFileName.concat(".").concat(_extension);
-                    File _thumbFile = new File(__owner.getModuleCfg().getFileStoragePath(), _thumbFileName);
-                    if (!_thumbFile.exists()) {
-                        _targetFile = _thumbFile;
-                    }
+                File _thumbFile = createThumbFileIfNeed(_targetFile, width, height);
+                if (_thumbFile != null) {
+                    return _thumbFile;
                 }
             }
         }
