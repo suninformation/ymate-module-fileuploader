@@ -210,7 +210,7 @@ public class UploadController {
                         if (__doBrowserCacheWarp(_resFile, _cfg.getResourcesCacheTimeout())) {
                             _returnView = View.httpStatusView(HttpServletResponse.SC_NOT_MODIFIED);
                         } else {
-                            BinaryView _view = new BinaryView(new FileInputStream(_resFile), _resource.getSize());
+                            BinaryView _view = new BinaryView(new FileInputStream(_resFile), _resFile.length());
                             _view.setContentType(_resource.getMimeType());
                             if (_isAttach) {
                                 String _fileName = StringUtils.substringAfterLast(_resource.getSourcePath(), File.separator);

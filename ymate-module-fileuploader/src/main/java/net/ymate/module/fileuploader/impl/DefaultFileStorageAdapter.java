@@ -33,6 +33,7 @@ import org.apache.commons.logging.LogFactory;
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.File;
+import java.io.IOException;
 
 /**
  * @author 刘镇 (suninformation@163.com) on 16/3/31 上午1:50
@@ -77,23 +78,32 @@ public class DefaultFileStorageAdapter implements IFileStorageAdapter {
     public void createThumbFiles(File sourceFile) {
         // 判断是否允许自定义缩略图尺寸
         if (__owner.getModuleCfg().isAllowCustomThumbSize() && !__owner.getModuleCfg().getThumbSizeList().isEmpty()) {
-            for (String _thumbSize : __owner.getModuleCfg().getThumbSizeList()) {
-                String[] _sizeArr = StringUtils.split(_thumbSize, "_");
-                // 调整宽高参数, 超出原图将不处理
-                int _width = BlurObject.bind(_sizeArr[0]).toIntValue();
-                int _height = BlurObject.bind(_sizeArr[1]).toIntValue();
-                //
-                createThumbFileIfNeed(sourceFile, _width, _height);
+            try {
+                BufferedImage _bufferedImg = ImageIO.read(sourceFile);
+                if (_bufferedImg != null) {
+                    for (String _thumbSize : __owner.getModuleCfg().getThumbSizeList()) {
+                        String[] _sizeArr = StringUtils.split(_thumbSize, "_");
+                        // 调整宽高参数, 超出原图将不处理
+                        int _width = BlurObject.bind(_sizeArr[0]).toIntValue();
+                        int _height = BlurObject.bind(_sizeArr[1]).toIntValue();
+                        //
+                        createThumbFileIfNeed(sourceFile, _bufferedImg, _width, _height);
+                    }
+                }
+            } catch (IOException e) {
+                _LOG.warn("", e);
             }
         }
     }
 
-    private File createThumbFileIfNeed(File sourceFile, int width, int height) {
+    private File createThumbFileIfNeed(File sourceFile, BufferedImage bufferedImg, int width, int height) {
         try {
-            BufferedImage _bufferedImg = ImageIO.read(sourceFile);
-            if (_bufferedImg != null) {
-                int _oWidth = _bufferedImg.getWidth();
-                int _oHeight = _bufferedImg.getHeight();
+            if (bufferedImg == null) {
+                bufferedImg = ImageIO.read(sourceFile);
+            }
+            if (bufferedImg != null) {
+                int _oWidth = bufferedImg.getWidth();
+                int _oHeight = bufferedImg.getHeight();
                 // 调整宽高参数, 超出原图将不处理
                 _oWidth = width >= _oWidth ? _oWidth : width;
                 _oHeight = height >= _oHeight ? _oHeight : height;
@@ -109,7 +119,7 @@ public class DefaultFileStorageAdapter implements IFileStorageAdapter {
                 if (StringUtils.isNotBlank(_extension)) {
                     File _thumbFile = new File(sourceFile.getParent(), _thumbFileName);
                     if (!_thumbFile.exists() && __owner.getModuleCfg().isAllowCustomThumbSize() && __owner.getModuleCfg().getThumbSizeList().contains(_thumbSize)) {
-                        if (!__owner.getModuleCfg().getImageFileProcessor().resize(_bufferedImg, _thumbFile, _oWidth, _oHeight, quality, _extension)) {
+                        if (!__owner.getModuleCfg().getImageFileProcessor().resize(bufferedImg, _thumbFile, _oWidth, _oHeight, quality, _extension)) {
                             return null;
                         }
                     }
@@ -131,7 +141,7 @@ public class DefaultFileStorageAdapter implements IFileStorageAdapter {
         File _targetFile = new File(__owner.getModuleCfg().getFileStoragePath(), sourcePath);
         if (_targetFile.exists()) {
             if (width != 0 || height != 0) {
-                File _thumbFile = createThumbFileIfNeed(_targetFile, width, height);
+                File _thumbFile = createThumbFileIfNeed(_targetFile, null, width, height);
                 if (_thumbFile != null) {
                     return _thumbFile;
                 }
