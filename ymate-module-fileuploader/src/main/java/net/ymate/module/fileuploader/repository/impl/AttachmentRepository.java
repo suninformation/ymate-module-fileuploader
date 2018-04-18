@@ -82,7 +82,7 @@ public class AttachmentRepository implements IAttachmentRepository {
                 // 若记录存在但文件并不存在时
                 if (!_storageAdapter.isFileExists(_hash, _attach.getSourcePath())) {
                     // 加锁
-                    Attachment.builder().id(_attach.getId()).build().load(Fields.create(Attachment.FIELDS.ID), IDBLocker.MYSQL);
+                    Attachment.builder().id(_attach.getId()).build().load(Fields.create(Attachment.FIELDS.ID), IDBLocker.DEFAULT);
                     // 保存文件
                     PairObject<Integer, String> _result = _storageAdapter.saveFile(_hash, fileWrapper);
                     // 更新记录

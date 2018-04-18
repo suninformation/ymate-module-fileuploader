@@ -30,7 +30,7 @@ import net.ymate.platform.core.beans.annotation.Clean;
 import net.ymate.platform.core.beans.annotation.Inject;
 import net.ymate.platform.core.lang.BlurObject;
 import net.ymate.platform.validation.validate.VLength;
-import net.ymate.platform.validation.validate.VRequried;
+import net.ymate.platform.validation.validate.VRequired;
 import net.ymate.platform.webmvc.IUploadFileWrapper;
 import net.ymate.platform.webmvc.annotation.*;
 import net.ymate.platform.webmvc.base.Type;
@@ -77,7 +77,7 @@ public class UploadController {
      */
     @RequestMapping(value = "/push", method = {Type.HttpMethod.POST, Type.HttpMethod.OPTIONS})
     @FileUpload
-    public IView __doUpload(@VRequried
+    public IView __doUpload(@VRequired
                             @RequestParam IUploadFileWrapper file, @RequestParam String type) throws Exception {
         // 检查上传的文件ContentType是否在允许列表中
         if (!FileUploader.get().getModuleCfg().getAllowContentTypes().isEmpty()
@@ -124,7 +124,7 @@ public class UploadController {
      * @throws Exception 可能产生的任何异常
      */
     @RequestMapping(value = "/match", method = {Type.HttpMethod.POST, Type.HttpMethod.OPTIONS})
-    public IView __doMatch(@VRequried
+    public IView __doMatch(@VRequired
                            @VLength(min = 32, max = 32)
                            @RequestParam String hash) throws Exception {
         // 非代理模式
