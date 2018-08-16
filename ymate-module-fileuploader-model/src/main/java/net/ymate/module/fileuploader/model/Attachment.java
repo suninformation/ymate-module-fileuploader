@@ -1,7 +1,10 @@
 package net.ymate.module.fileuploader.model;
 
 import net.ymate.platform.core.beans.annotation.PropertyState;
-import net.ymate.platform.persistence.annotation.*;
+import net.ymate.platform.persistence.annotation.Default;
+import net.ymate.platform.persistence.annotation.Entity;
+import net.ymate.platform.persistence.annotation.Id;
+import net.ymate.platform.persistence.annotation.Property;
 import net.ymate.platform.persistence.jdbc.support.BaseEntity;
 
 /**
@@ -10,75 +13,74 @@ import net.ymate.platform.persistence.jdbc.support.BaseEntity;
  * @author YMP
  * @version 1.0
  */
-@Entity("attachment")
+@Entity(Attachment.TABLE_NAME)
 public class Attachment extends BaseEntity<Attachment, java.lang.String> {
 
     private static final long serialVersionUID = 1L;
 
     @Id
-    @Property(name = "id", nullable = false, length = 32)
-    @PropertyState(propertyName = "id")
+    @Property(name = FIELDS.ID, nullable = false, length = 32)
+    @PropertyState(propertyName = FIELDS.ID)
     private java.lang.String id;
 
-    @Property(name = "hash", nullable = false, length = 32)
-    @PropertyState(propertyName = "hash")
+    @Property(name = FIELDS.HASH, nullable = false, length = 32)
+    @PropertyState(propertyName = FIELDS.HASH)
     private java.lang.String hash;
 
-    @Property(name = "uid", nullable = false, length = 32)
-    @PropertyState(propertyName = "uid")
+    @Property(name = FIELDS.UID, nullable = false, length = 32)
+    @PropertyState(propertyName = FIELDS.UID)
     private java.lang.String uid;
 
-    @Property(name = "static_url", length = 255)
-    @PropertyState(propertyName = "static_url")
+    @Property(name = FIELDS.STATIC_URL, length = 255)
+    @PropertyState(propertyName = FIELDS.STATIC_URL)
     private java.lang.String staticUrl;
 
-    @Property(name = "source_path", nullable = false, length = 255)
-    @PropertyState(propertyName = "source_path")
+    @Property(name = FIELDS.SOURCE_PATH, nullable = false, length = 255)
+    @PropertyState(propertyName = FIELDS.SOURCE_PATH)
     private java.lang.String sourcePath;
 
-    @Property(name = "extension", length = 10)
-    @PropertyState(propertyName = "extension")
+    @Property(name = FIELDS.EXTENSION, length = 10)
+    @PropertyState(propertyName = FIELDS.EXTENSION)
     private java.lang.String extension;
 
-    @Property(name = "mime_type", nullable = false, length = 100)
-    @PropertyState(propertyName = "mime_type")
+    @Property(name = FIELDS.MIME_TYPE, nullable = false, length = 100)
+    @PropertyState(propertyName = FIELDS.MIME_TYPE)
     private java.lang.String mimeType;
 
-    @Property(name = "size", length = 20)
+    @Property(name = FIELDS.SIZE, length = 20)
     @Default("0")
-    @PropertyState(propertyName = "size")
+    @PropertyState(propertyName = FIELDS.SIZE)
     private java.lang.Long size;
 
-    @Property(name = "status", unsigned = true, length = 2)
+    @Property(name = FIELDS.STATUS, unsigned = true, length = 2)
     @Default("0")
-    @PropertyState(propertyName = "status")
+    @PropertyState(propertyName = FIELDS.STATUS)
     private java.lang.Integer status;
 
-    @Property(name = "type", unsigned = true, length = 2)
+    @Property(name = FIELDS.TYPE, unsigned = true, length = 2)
     @Default("0")
-    @PropertyState(propertyName = "type")
+    @PropertyState(propertyName = FIELDS.TYPE)
     private java.lang.Integer type;
 
-    @Property(name = "site_id", nullable = false, length = 32)
-    @PropertyState(propertyName = "site_id")
+    @Property(name = FIELDS.SITE_ID, nullable = false, length = 32)
+    @PropertyState(propertyName = FIELDS.SITE_ID)
     private java.lang.String siteId;
 
-    @Property(name = "owner", length = 32)
-    @PropertyState(propertyName = "owner")
+    @Property(name = FIELDS.OWNER, length = 32)
+    @PropertyState(propertyName = FIELDS.OWNER)
     private java.lang.String owner;
 
-    @Property(name = "serial_attrs", length = 16383)
-    @PropertyState(propertyName = "serial_attrs")
+    @Property(name = FIELDS.SERIAL_ATTRS, length = 16383)
+    @PropertyState(propertyName = FIELDS.SERIAL_ATTRS)
     private java.lang.String serialAttrs;
 
-    @Property(name = "create_time", nullable = false, length = 13)
-    @PropertyState(propertyName = "create_time")
-    @Readonly
+    @Property(name = FIELDS.CREATE_TIME, nullable = false, length = 13)
+    @PropertyState(propertyName = FIELDS.CREATE_TIME)
     private java.lang.Long createTime;
 
-    @Property(name = "last_modify_time", length = 13)
+    @Property(name = FIELDS.LAST_MODIFY_TIME, length = 13)
     @Default("0")
-    @PropertyState(propertyName = "last_modify_time")
+    @PropertyState(propertyName = FIELDS.LAST_MODIFY_TIME)
     private java.lang.Long lastModifyTime;
 
     /**
@@ -522,7 +524,7 @@ public class Attachment extends BaseEntity<Attachment, java.lang.String> {
     public class FIELDS {
         public static final String ID = "id";
         public static final String HASH = "hash";
-        public static final String UID = "uid";
+        public static final String UID = "u_id";
         public static final String STATIC_URL = "static_url";
         public static final String SOURCE_PATH = "source_path";
         public static final String EXTENSION = "extension";

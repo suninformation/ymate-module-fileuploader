@@ -1,7 +1,10 @@
 package net.ymate.module.fileuploader.model;
 
 import net.ymate.platform.core.beans.annotation.PropertyState;
-import net.ymate.platform.persistence.annotation.*;
+import net.ymate.platform.persistence.annotation.Default;
+import net.ymate.platform.persistence.annotation.Entity;
+import net.ymate.platform.persistence.annotation.Id;
+import net.ymate.platform.persistence.annotation.Property;
 import net.ymate.platform.persistence.jdbc.support.BaseEntity;
 
 /**
@@ -10,38 +13,37 @@ import net.ymate.platform.persistence.jdbc.support.BaseEntity;
  * @author YMP
  * @version 1.0
  */
-@Entity("attachment_meta")
+@Entity(AttachmentMeta.TABLE_NAME)
 public class AttachmentMeta extends BaseEntity<AttachmentMeta, java.lang.String> {
 
     private static final long serialVersionUID = 1L;
 
     @Id
-    @Property(name = "id", nullable = false, length = 32)
-    @PropertyState(propertyName = "id")
+    @Property(name = FIELDS.ID, nullable = false, length = 32)
+    @PropertyState(propertyName = FIELDS.ID)
     private java.lang.String id;
 
-    @Property(name = "usage_size", length = 20)
+    @Property(name = FIELDS.USAGE_SIZE, length = 20)
     @Default("0")
-    @PropertyState(propertyName = "usage_size")
+    @PropertyState(propertyName = FIELDS.USAGE_SIZE)
     private java.lang.Long usageSize;
 
-    @Property(name = "max_size", length = 20)
+    @Property(name = FIELDS.MAX_SIZE, length = 20)
     @Default("0")
-    @PropertyState(propertyName = "max_size")
+    @PropertyState(propertyName = FIELDS.MAX_SIZE)
     private java.lang.Long maxSize;
 
-    @Property(name = "site_id", nullable = false, length = 32)
-    @PropertyState(propertyName = "site_id")
+    @Property(name = FIELDS.SITE_ID, nullable = false, length = 32)
+    @PropertyState(propertyName = FIELDS.SITE_ID)
     private java.lang.String siteId;
 
-    @Property(name = "create_time", nullable = false, length = 13)
-    @PropertyState(propertyName = "create_time")
-    @Readonly
+    @Property(name = FIELDS.CREATE_TIME, nullable = false, length = 13)
+    @PropertyState(propertyName = FIELDS.CREATE_TIME)
     private java.lang.Long createTime;
 
-    @Property(name = "last_modify_time", length = 13)
+    @Property(name = FIELDS.LAST_MODIFY_TIME, length = 13)
     @Default("0")
-    @PropertyState(propertyName = "last_modify_time")
+    @PropertyState(propertyName = FIELDS.LAST_MODIFY_TIME)
     private java.lang.Long lastModifyTime;
 
     /**

@@ -13,35 +13,35 @@ import net.ymate.platform.persistence.jdbc.support.BaseEntity;
  * @author YMP
  * @version 1.0
  */
-@Entity("attachment_attribute")
+@Entity(AttachmentAttribute.TABLE_NAME)
 public class AttachmentAttribute extends BaseEntity<AttachmentAttribute, java.lang.String> {
 
     private static final long serialVersionUID = 1L;
 
     @Id
-    @Property(name = "id", nullable = false, length = 32)
-    @PropertyState(propertyName = "id")
+    @Property(name = FIELDS.ID, nullable = false, length = 32)
+    @PropertyState(propertyName = FIELDS.ID)
     private java.lang.String id;
 
-    @Property(name = "attachment_id", nullable = false, length = 32)
-    @PropertyState(propertyName = "attachment_id")
+    @Property(name = FIELDS.ATTACHMENT_ID, nullable = false, length = 32)
+    @PropertyState(propertyName = FIELDS.ATTACHMENT_ID)
     private java.lang.String attachmentId;
 
-    @Property(name = "attr_key", nullable = false, length = 255)
-    @PropertyState(propertyName = "attr_key")
+    @Property(name = FIELDS.ATTR_KEY, nullable = false, length = 255)
+    @PropertyState(propertyName = FIELDS.ATTR_KEY)
     private java.lang.String attrKey;
 
-    @Property(name = "attr_value", length = 16383)
-    @PropertyState(propertyName = "attr_value")
+    @Property(name = FIELDS.ATTR_VALUE, length = 16383)
+    @PropertyState(propertyName = FIELDS.ATTR_VALUE)
     private java.lang.String attrValue;
 
-    @Property(name = "type", unsigned = true, length = 2)
+    @Property(name = FIELDS.TYPE, unsigned = true, length = 2)
     @Default("0")
-    @PropertyState(propertyName = "type")
+    @PropertyState(propertyName = FIELDS.TYPE)
     private java.lang.Integer type;
 
-    @Property(name = "owner", length = 32)
-    @PropertyState(propertyName = "owner")
+    @Property(name = FIELDS.OWNER, length = 32)
+    @PropertyState(propertyName = FIELDS.OWNER)
     private java.lang.String owner;
 
     /**

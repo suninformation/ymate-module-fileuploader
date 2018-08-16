@@ -5,7 +5,7 @@ DROP TABLE IF EXISTS `ym_attachment`;
 CREATE TABLE `ym_attachment` (
   `id` varchar(32) NOT NULL,
   `hash` varchar(32) NOT NULL,
-  `uid` varchar(32) NOT NULL,
+  `u_id` varchar(32) NOT NULL,
   `static_url` varchar(255) DEFAULT NULL,
   `source_path` varchar(255) NOT NULL,
   `extension` varchar(10) DEFAULT NULL,
