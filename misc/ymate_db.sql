@@ -10,7 +10,7 @@ CREATE TABLE `ym_attachment` (
   `source_path` varchar(255) NOT NULL,
   `extension` varchar(10) DEFAULT NULL,
   `mime_type` varchar(100) NOT NULL,
-  `size` bigint(20) DEFAULT '0',
+  `file_size` bigint(20) DEFAULT '0',
   `status` smallint(2) unsigned DEFAULT '0',
   `type` smallint(2) unsigned DEFAULT '0',
   `site_id` varchar(32) NOT NULL,

@@ -529,7 +529,7 @@ public class Attachment extends BaseEntity<Attachment, java.lang.String> {
         public static final String SOURCE_PATH = "source_path";
         public static final String EXTENSION = "extension";
         public static final String MIME_TYPE = "mime_type";
-        public static final String SIZE = "size";
+        public static final String SIZE = "file_size";
         public static final String STATUS = "status";
         public static final String TYPE = "type";
         public static final String SITE_ID = "site_id";
