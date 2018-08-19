@@ -1,10 +1,9 @@
 package net.ymate.module.fileuploader.model;
 
 import net.ymate.platform.core.beans.annotation.PropertyState;
-import net.ymate.platform.persistence.annotation.Default;
-import net.ymate.platform.persistence.annotation.Entity;
-import net.ymate.platform.persistence.annotation.Id;
-import net.ymate.platform.persistence.annotation.Property;
+import net.ymate.platform.persistence.IShardingable;
+import net.ymate.platform.persistence.annotation.*;
+import net.ymate.platform.persistence.jdbc.IConnectionHolder;
 import net.ymate.platform.persistence.jdbc.support.BaseEntity;
 
 /**
@@ -27,7 +26,7 @@ public class AttachmentAttribute extends BaseEntity<AttachmentAttribute, java.la
     @PropertyState(propertyName = FIELDS.ATTACHMENT_ID)
     private java.lang.String attachmentId;
 
-    @Property(name = FIELDS.ATTR_KEY, nullable = false, length = 255)
+    @Property(name = FIELDS.ATTR_KEY, nullable = false, length = 100)
     @PropertyState(propertyName = FIELDS.ATTR_KEY)
     private java.lang.String attrKey;
 
@@ -44,6 +43,16 @@ public class AttachmentAttribute extends BaseEntity<AttachmentAttribute, java.la
     @PropertyState(propertyName = FIELDS.OWNER)
     private java.lang.String owner;
 
+    @Property(name = FIELDS.CREATE_TIME, nullable = false, length = 13)
+    @PropertyState(propertyName = FIELDS.CREATE_TIME)
+    @Readonly
+    private java.lang.Long createTime;
+
+    @Property(name = FIELDS.LAST_MODIFY_TIME, length = 13)
+    @Default("0")
+    @PropertyState(propertyName = FIELDS.LAST_MODIFY_TIME)
+    private java.lang.Long lastModifyTime;
+
     /**
      * 构造器
      */
@@ -56,11 +65,13 @@ public class AttachmentAttribute extends BaseEntity<AttachmentAttribute, java.la
      * @param id
      * @param attachmentId
      * @param attrKey
+     * @param createTime
      */
-    public AttachmentAttribute(java.lang.String id, java.lang.String attachmentId, java.lang.String attrKey) {
+    public AttachmentAttribute(java.lang.String id, java.lang.String attachmentId, java.lang.String attrKey, java.lang.Long createTime) {
         this.id = id;
         this.attachmentId = attachmentId;
         this.attrKey = attrKey;
+        this.createTime = createTime;
     }
 
     /**
@@ -72,20 +83,26 @@ public class AttachmentAttribute extends BaseEntity<AttachmentAttribute, java.la
      * @param attrValue
      * @param type
      * @param owner
+     * @param createTime
+     * @param lastModifyTime
      */
-    public AttachmentAttribute(java.lang.String id, java.lang.String attachmentId, java.lang.String attrKey, java.lang.String attrValue, java.lang.Integer type, java.lang.String owner) {
+    public AttachmentAttribute(java.lang.String id, java.lang.String attachmentId, java.lang.String attrKey, java.lang.String attrValue, java.lang.Integer type, java.lang.String owner, java.lang.Long createTime, java.lang.Long lastModifyTime) {
         this.id = id;
         this.attachmentId = attachmentId;
         this.attrKey = attrKey;
         this.attrValue = attrValue;
         this.type = type;
         this.owner = owner;
+        this.createTime = createTime;
+        this.lastModifyTime = lastModifyTime;
     }
 
+    @Override
     public java.lang.String getId() {
         return id;
     }
 
+    @Override
     public void setId(java.lang.String id) {
         this.id = id;
     }
@@ -161,6 +178,34 @@ public class AttachmentAttribute extends BaseEntity<AttachmentAttribute, java.la
         this.owner = owner;
     }
 
+    /**
+     * @return the createTime
+     */
+    public java.lang.Long getCreateTime() {
+        return createTime;
+    }
+
+    /**
+     * @param createTime the createTime to set
+     */
+    public void setCreateTime(java.lang.Long createTime) {
+        this.createTime = createTime;
+    }
+
+    /**
+     * @return the lastModifyTime
+     */
+    public java.lang.Long getLastModifyTime() {
+        return lastModifyTime;
+    }
+
+    /**
+     * @param lastModifyTime the lastModifyTime to set
+     */
+    public void setLastModifyTime(java.lang.Long lastModifyTime) {
+        this.lastModifyTime = lastModifyTime;
+    }
+
 
     //
     // Chain
@@ -188,6 +233,34 @@ public class AttachmentAttribute extends BaseEntity<AttachmentAttribute, java.la
 
         public AttachmentAttribute build() {
             return _model;
+        }
+
+
+        public IConnectionHolder connectionHolder() {
+            return _model.getConnectionHolder();
+        }
+
+        public AttachmentAttributeBuilder connectionHolder(IConnectionHolder connectionHolder) {
+            _model.setConnectionHolder(connectionHolder);
+            return this;
+        }
+
+        public String dataSourceName() {
+            return _model.getDataSourceName();
+        }
+
+        public AttachmentAttributeBuilder dataSourceName(String dsName) {
+            _model.setDataSourceName(dsName);
+            return this;
+        }
+
+        public IShardingable shardingable() {
+            return _model.getShardingable();
+        }
+
+        public AttachmentAttributeBuilder shardingable(IShardingable shardingable) {
+            _model.setShardingable(shardingable);
+            return this;
         }
 
         public java.lang.String id() {
@@ -244,6 +317,24 @@ public class AttachmentAttribute extends BaseEntity<AttachmentAttribute, java.la
             return this;
         }
 
+        public java.lang.Long createTime() {
+            return _model.getCreateTime();
+        }
+
+        public AttachmentAttributeBuilder createTime(java.lang.Long createTime) {
+            _model.setCreateTime(createTime);
+            return this;
+        }
+
+        public java.lang.Long lastModifyTime() {
+            return _model.getLastModifyTime();
+        }
+
+        public AttachmentAttributeBuilder lastModifyTime(java.lang.Long lastModifyTime) {
+            _model.setLastModifyTime(lastModifyTime);
+            return this;
+        }
+
     }
 
     /**
@@ -256,6 +347,8 @@ public class AttachmentAttribute extends BaseEntity<AttachmentAttribute, java.la
         public static final String ATTR_VALUE = "attr_value";
         public static final String TYPE = "type";
         public static final String OWNER = "owner";
+        public static final String CREATE_TIME = "create_time";
+        public static final String LAST_MODIFY_TIME = "last_modify_time";
     }
 
     public static final String TABLE_NAME = "attachment_attribute";

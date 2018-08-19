@@ -46,6 +46,9 @@
     # 静态资源引用基准URL路径, 必须以'http://'或'https://'开始并以'/'结束, 如: http://www.ymate.net/static/resources/, 默认值: 空(即不使用静态资源引用路径)
     ymp.configs.module.fileuploader.resources_base_url=
     
+    # 资源访问处理器类, 用于处理被访问资源是否需要验证用户身份, 默认值为空(即不限制), 此类需实现net.ymate.module.fileuploader.IResourcesAccessProcessor接口
+    ymp.configs.module.fileuploader.resources_access_processor_class=
+    
     # 是否允许自定义缩略图尺寸, 默认值: false
     ymp.configs.module.fileuploader.allow_custom_thumb_size=
     

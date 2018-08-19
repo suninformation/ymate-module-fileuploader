@@ -1,5 +1,5 @@
 /*
- * Copyright 2007-2017 the original author or authors.
+ * Copyright 2007-2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -33,6 +33,7 @@ public class ThumbnailatorImageFileProcessor implements IImageFileProcessor {
 
     private static final Log _LOG = LogFactory.getLog(ThumbnailatorImageFileProcessor.class);
 
+    @Override
     public boolean resize(BufferedImage source, File dist, int width, int height, float quality, String formatName) {
         try {
             Thumbnails.Builder<BufferedImage> _thumbBuilder = Thumbnails.of(source);

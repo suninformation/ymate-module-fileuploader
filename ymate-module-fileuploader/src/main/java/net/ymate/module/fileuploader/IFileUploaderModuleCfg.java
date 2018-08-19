@@ -1,5 +1,5 @@
 /*
- * Copyright 2007-2017 the original author or authors.
+ * Copyright 2007-2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -48,6 +48,11 @@ public interface IFileUploaderModuleCfg {
      * @return 静态资源引用基准URL路径, 必须以'http://'或'https://'开始并以'/'结束, 如: http://www.ymate.net/static/resources/, 默认值: 空(即不使用静态资源引用路径)
      */
     String getResourcesBaseUrl();
+
+    /**
+     * @return 资源访问处理器类, 用于验证被访问资源是否允许, 默认值为空(即不限制), 此类需实现net.ymate.module.fileuploader.IResourcesAccessProcessor接口
+     */
+    IResourcesAccessProcessor getResourceAccessProcessor();
 
     /**
      * @return 资源文件缓存超时时间(秒), 取值范围: 0-31536000(=60 * 60 * 24 * 365), 取值小于或等于0则表示缓存一年, 默认值: 0

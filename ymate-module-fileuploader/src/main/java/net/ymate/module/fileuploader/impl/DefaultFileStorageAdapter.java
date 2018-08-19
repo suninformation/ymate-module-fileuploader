@@ -1,5 +1,5 @@
 /*
- * Copyright 2007-2017 the original author or authors.
+ * Copyright 2007-2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -45,15 +45,18 @@ public class DefaultFileStorageAdapter implements IFileStorageAdapter {
 
     private IFileUploader __owner;
 
+    @Override
     public void init(IFileUploader owner) throws Exception {
         __owner = owner;
     }
 
+    @Override
     public boolean isFileExists(String hash, String sourcePath) {
         File _target = new File(__owner.getModuleCfg().getFileStoragePath(), sourcePath);
         return _target.exists() && _target.isFile();
     }
 
+    @Override
     public PairObject<Integer, String> saveFile(String hash, IUploadFileWrapper file) throws Exception {
         IFileUploader.ResourceType _fileType = IFileUploader.ResourceType.valueOf(StringUtils.substringBefore(file.getContentType(), "/").toUpperCase());
         // 转存文件，路径格式：{TYPE_NAME}/{octal_yyyy}/{MMdd}/{HHmmss}_{FILE_HASH_8BIT}_{NODE_ID}
@@ -75,6 +78,7 @@ public class DefaultFileStorageAdapter implements IFileStorageAdapter {
         return new PairObject<Integer, String>(_fileType.type(), _sourcePathStr);
     }
 
+    @Override
     public void createThumbFiles(File sourceFile) {
         // 判断是否允许自定义缩略图尺寸
         if (__owner.getModuleCfg().isAllowCustomThumbSize() && !__owner.getModuleCfg().getThumbSizeList().isEmpty()) {
@@ -132,11 +136,13 @@ public class DefaultFileStorageAdapter implements IFileStorageAdapter {
         return null;
     }
 
+    @Override
     public File readFile(String hash, String sourcePath) {
         IFileUploaderModuleCfg _cfg = FileUploader.get().getModuleCfg();
         return new File(_cfg.getFileStoragePath(), sourcePath);
     }
 
+    @Override
     public File readThumb(IFileUploader.ResourceType resourceType, String hash, String sourcePath, int width, int height) {
         File _targetFile = new File(__owner.getModuleCfg().getFileStoragePath(), sourcePath);
         if (_targetFile.exists()) {

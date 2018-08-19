@@ -1,5 +1,5 @@
 /*
- * Copyright 2007-2017 the original author or authors.
+ * Copyright 2007-2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,10 +15,7 @@
  */
 package net.ymate.module.fileuploader.impl;
 
-import net.ymate.module.fileuploader.IFileStorageAdapter;
-import net.ymate.module.fileuploader.IFileUploader;
-import net.ymate.module.fileuploader.IFileUploaderModuleCfg;
-import net.ymate.module.fileuploader.IImageFileProcessor;
+import net.ymate.module.fileuploader.*;
 import net.ymate.platform.core.YMP;
 import net.ymate.platform.core.lang.BlurObject;
 import net.ymate.platform.core.util.ClassUtils;
@@ -47,6 +44,8 @@ public class DefaultModuleCfg implements IFileUploaderModuleCfg {
     private File __fileStoragePath;
 
     private String __resourcesBaseUrl;
+
+    private IResourcesAccessProcessor __resourcesAccessProcessor;
 
     private int __resourcesCacheTimeout;
 
@@ -96,6 +95,8 @@ public class DefaultModuleCfg implements IFileUploaderModuleCfg {
                 __resourcesBaseUrl = __resourcesBaseUrl + "/";
             }
         }
+        //
+        __resourcesAccessProcessor = ClassUtils.impl(_moduleCfgs.get("resources_access_processor_class"), IResourcesAccessProcessor.class, this.getClass());
         //
         __resourcesCacheTimeout = BlurObject.bind(_moduleCfgs.get("resources_cache_timeout")).toIntValue();
         int _oneYear = 60 * 60 * 24 * 365;
@@ -158,58 +159,77 @@ public class DefaultModuleCfg implements IFileUploaderModuleCfg {
         }
     }
 
+    @Override
     public String getNodeId() {
         return __nodeId;
     }
 
+    @Override
     public String getCacheNamePrefix() {
         return __cacheNamePrefix;
     }
 
+    @Override
     public int getCacheTimeout() {
         return __cacheTimeout;
     }
 
+    @Override
     public File getFileStoragePath() {
         return __fileStoragePath;
     }
 
+    @Override
     public String getResourcesBaseUrl() {
         return __resourcesBaseUrl;
     }
 
+    @Override
+    public IResourcesAccessProcessor getResourceAccessProcessor() {
+        return __resourcesAccessProcessor;
+    }
+
+    @Override
     public int getResourcesCacheTimeout() {
         return __resourcesCacheTimeout;
     }
 
+    @Override
     public IFileStorageAdapter getFileStorageAdapter() {
         return __fileStorageAdapter;
     }
 
+    @Override
     public IImageFileProcessor getImageFileProcessor() {
         return __imageFileProcessor;
     }
 
+    @Override
     public boolean isProxyMode() {
         return __proxyMode;
     }
 
+    @Override
     public String getProxyServiceBaseUrl() {
         return __proxyServiceBaseUrl;
     }
 
+    @Override
     public boolean isAllowCustomThumbSize() {
         return __allowCustomThumbSize;
     }
 
+    @Override
     public List<String> getThumbSizeList() {
         return __thumbSizeList;
     }
 
+    @Override
     public float getThumbQuality() {
         return __thumbQuality;
     }
 
+    @Override
     public List<String> getAllowContentTypes() {
         return __allowContentTypes;
     }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2007-2017 the original author or authors.
+ * Copyright 2007-2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -65,10 +65,12 @@ public class FileUploader implements IModule, IFileUploader {
         return __instance;
     }
 
+    @Override
     public String getName() {
         return MODULE_NAME;
     }
 
+    @Override
     public void init(YMP owner) throws Exception {
         if (!__inited) {
             //
@@ -88,24 +90,29 @@ public class FileUploader implements IModule, IFileUploader {
         }
     }
 
+    @Override
     public boolean isInited() {
         return __inited;
     }
 
+    @Override
     public void registerUploadResultProcessor(String name, Class<? extends IUploadResultProcessor> targetClass) throws Exception {
         if (StringUtils.isNotBlank(name) && targetClass != null) {
             __resultProcessors.put(name, targetClass.newInstance());
         }
     }
 
+    @Override
     public IUploadResultProcessor getUploadResultProcessor(String name) {
         return __resultProcessors.get(name);
     }
 
+    @Override
     public ICache getMatchHashCache() {
         return __matchHashCache;
     }
 
+    @Override
     public void destroy() throws Exception {
         if (__inited) {
             __inited = false;
@@ -115,10 +122,12 @@ public class FileUploader implements IModule, IFileUploader {
         }
     }
 
+    @Override
     public IFileUploaderModuleCfg getModuleCfg() {
         return __moduleCfg;
     }
 
+    @Override
     public YMP getOwner() {
         return __owner;
     }

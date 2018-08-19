@@ -1,5 +1,5 @@
 /*
- * Copyright 2007-2017 the original author or authors.
+ * Copyright 2007-2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -34,6 +34,7 @@ import org.apache.commons.lang.StringUtils;
 @UploadResultProcessor("fileupload")
 public class FileUploadResultProcessor implements IUploadResultProcessor {
 
+    @Override
     public JsonView process(UploadFileMeta fileMeta) throws Exception {
         // {"files":[{"thumbnailUrl":"update/a.jpg","name":"01.png","size":"300k"}]}
         JSONArray _filesArr = new JSONArray();

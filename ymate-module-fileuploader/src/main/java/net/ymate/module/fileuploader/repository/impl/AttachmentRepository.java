@@ -1,5 +1,5 @@
 /*
- * Copyright 2007-2017 the original author or authors.
+ * Copyright 2007-2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,9 +16,10 @@
 package net.ymate.module.fileuploader.repository.impl;
 
 import net.ymate.framework.core.util.WebUtils;
+import net.ymate.framework.exception.RequestUnauthorizedException;
 import net.ymate.module.fileuploader.*;
-import net.ymate.module.fileuploader.repository.IAttachmentRepository;
 import net.ymate.module.fileuploader.model.Attachment;
+import net.ymate.module.fileuploader.repository.IAttachmentRepository;
 import net.ymate.platform.cache.CacheElement;
 import net.ymate.platform.core.YMP;
 import net.ymate.platform.core.beans.annotation.Bean;
@@ -43,8 +44,12 @@ import java.io.File;
 @Transaction
 public class AttachmentRepository implements IAttachmentRepository {
 
+    private static final String RESOURCE_CACHE_PREFIX = "resource_hash_";
+
+    private static final String FILE_META_CACHE_PREFIX = "file_meta_hash_";
+
     private String __doGetResourceURLFromCache(String hash) {
-        CacheElement _element = (CacheElement) FileUploader.get().getMatchHashCache().get("res_hash_" + hash);
+        CacheElement _element = (CacheElement) FileUploader.get().getMatchHashCache().get(RESOURCE_CACHE_PREFIX + hash);
         if (_element != null) {
             return (String) _element.getObject();
         }
@@ -52,7 +57,7 @@ public class AttachmentRepository implements IAttachmentRepository {
     }
 
     private UploadFileMeta __doGetUploadFileMetaFromCache(String hash) {
-        CacheElement _element = (CacheElement) FileUploader.get().getMatchHashCache().get("meta_hash_" + hash);
+        CacheElement _element = (CacheElement) FileUploader.get().getMatchHashCache().get(FILE_META_CACHE_PREFIX + hash);
         if (_element != null) {
             return (UploadFileMeta) _element.getObject();
         }
@@ -63,6 +68,7 @@ public class AttachmentRepository implements IAttachmentRepository {
         FileUploader.get().getMatchHashCache().put(prefix + hash, new CacheElement(element, FileUploader.get().getModuleCfg().getCacheTimeout()));
     }
 
+    @Override
     @Transaction
     public UploadFileMeta uploadFile(IUploadFileWrapper fileWrapper) throws Exception {
         // 通过对文件签名的方式获取唯一ID
@@ -77,7 +83,7 @@ public class AttachmentRepository implements IAttachmentRepository {
             _fileMeta.setSize(fileWrapper.getSize());
             //
             IFileStorageAdapter _storageAdapter = FileUploader.get().getModuleCfg().getFileStorageAdapter();
-            Attachment _attach = __doMatchHash(_hash, null, Fields.create(Attachment.FIELDS.ID, Attachment.FIELDS.TYPE, Attachment.FIELDS.SOURCE_PATH));
+            Attachment _attach = __doMatchHash(_hash, null);
             if (_attach != null) {
                 // 若记录存在但文件并不存在时
                 if (!_storageAdapter.isFileExists(_hash, _attach.getSourcePath())) {
@@ -89,8 +95,8 @@ public class AttachmentRepository implements IAttachmentRepository {
                     _attach = new Attachment.AttachmentBuilder(_attach).staticUrl(FileUploader.get().getModuleCfg().getResourcesBaseUrl())
                             .sourcePath(_result.getValue())
                             .lastModifyTime(System.currentTimeMillis())
-                            .size(fileWrapper.getSize())
-                            .build().update(Fields.create(Attachment.FIELDS.STATIC_URL, Attachment.FIELDS.SOURCE_PATH, Attachment.FIELDS.LAST_MODIFY_TIME, Attachment.FIELDS.SIZE));
+                            .fileSize(fileWrapper.getSize())
+                            .build().update(Fields.create(Attachment.FIELDS.STATIC_URL, Attachment.FIELDS.SOURCE_PATH, Attachment.FIELDS.LAST_MODIFY_TIME, Attachment.FIELDS.FILE_SIZE));
                     //
                     YMP.get().getEvents().fireEvent(new FileUploadEvent(FileUploader.get(), FileUploadEvent.EVENT.FILE_UPLOADED_UPDATE).setEventSource(_attach));
                 }
@@ -106,38 +112,30 @@ public class AttachmentRepository implements IAttachmentRepository {
                     _attach = Attachment.builder().id(UUIDUtils.UUID())
                             .hash(_hash)
                             .type(_result.getKey())
-                            .uid(IFileUploader.MODULE_NAME)
-                            .siteId("default")
                             .staticUrl(FileUploader.get().getModuleCfg().getResourcesBaseUrl())
                             .sourcePath(_result.getValue())
                             .mimeType(fileWrapper.getContentType())
                             .createTime(System.currentTimeMillis())
                             .extension(FileUtils.getExtName(fileWrapper.getName()))
-                            .size(fileWrapper.getSize())
+                            .fileSize(fileWrapper.getSize())
                             .build().save();
                     //
                     YMP.get().getEvents().fireEvent(new FileUploadEvent(FileUploader.get(), FileUploadEvent.EVENT.FILE_UPLOADED_CREATE).setEventSource(_attach));
                 }
             }
             // 缓存
-            __doPutElementToCache("meta_hash_", _hash, _fileMeta);
+            __doPutElementToCache(FILE_META_CACHE_PREFIX, _hash, _fileMeta);
         }
         return _fileMeta;
     }
 
-    private Attachment __doMatchHash(String hash, IFileUploader.ResourceType resourceType, Fields fields) throws Exception {
+    private Attachment __doMatchHash(String hash, IFileUploader.ResourceType resourceType) throws Exception {
         if (StringUtils.isNotBlank(hash)) {
-            Attachment.AttachmentBuilder _builder = Attachment.builder()
-                    .hash(hash)
-                    .siteId("default");
+            Attachment.AttachmentBuilder _builder = Attachment.builder().hash(hash);
             if (resourceType != null) {
                 _builder.type(resourceType.type());
             }
-            if (fields != null) {
-                return _builder.build().findFirst(fields);
-            } else {
-                return _builder.build().findFirst();
-            }
+            return _builder.build().findFirst();
         }
         return null;
     }
@@ -155,19 +153,18 @@ public class AttachmentRepository implements IAttachmentRepository {
         return WebUtils.buildURL(WebContext.getRequest(), "/uploads/resources/" + _resourcesBaseUrl, true);
     }
 
+    @Override
     public String matchHash(String hash) throws Exception {
         String _returnValue = null;
         if (StringUtils.isNotBlank(hash)) {
             // 先尝试从缓存中加载
             _returnValue = __doGetResourceURLFromCache(hash);
             if (StringUtils.isBlank(_returnValue)) {
-                Attachment _attach = __doMatchHash(hash, null, Fields.create(Attachment.FIELDS.TYPE, Attachment.FIELDS.SOURCE_PATH));
+                Attachment _attach = __doMatchHash(hash, null);
                 if (_attach != null) {
-                    _attach.setHash(hash);
-                    _attach.setSiteId("default");
                     _returnValue = __doBuildResourceUrl(hash, IFileUploader.ResourceType.valueOf(_attach.getType()), _attach.getSourcePath());
                     // 缓存
-                    __doPutElementToCache("res_hash_", hash, _returnValue);
+                    __doPutElementToCache(RESOURCE_CACHE_PREFIX, hash, _returnValue);
                     //
                     YMP.get().getEvents().fireEvent(new FileUploadEvent(FileUploader.get(), FileUploadEvent.EVENT.FILE_MATCHED).setEventSource(_attach));
                 }
@@ -176,19 +173,17 @@ public class AttachmentRepository implements IAttachmentRepository {
         return _returnValue;
     }
 
+    @Override
     public Attachment getResource(IFileUploader.ResourceType resourceType, String hash) throws Exception {
         if (resourceType == null || StringUtils.isBlank(hash)) {
             return null;
         }
-        Attachment _attach = __doMatchHash(hash, resourceType, Fields.create(Attachment.FIELDS.ID)
-                .add(Attachment.FIELDS.SIZE)
-                .add(Attachment.FIELDS.MIME_TYPE)
-                .add(Attachment.FIELDS.SOURCE_PATH)
-                .add(Attachment.FIELDS.EXTENSION)
-                .add(Attachment.FIELDS.STATUS));
+        Attachment _attach = __doMatchHash(hash, resourceType);
         if (_attach != null) {
-            _attach.setHash(hash);
-            _attach.setSiteId("default");
+            IResourcesAccessProcessor _processor = FileUploader.get().getModuleCfg().getResourceAccessProcessor();
+            if (_processor != null && !_processor.process(_attach)) {
+                throw new RequestUnauthorizedException();
+            }
             YMP.get().getEvents().fireEvent(new FileUploadEvent(FileUploader.get(), FileUploadEvent.EVENT.FILE_DOWNLOADED).setEventSource(_attach));
         }
         return _attach;

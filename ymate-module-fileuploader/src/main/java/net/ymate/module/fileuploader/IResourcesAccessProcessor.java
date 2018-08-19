@@ -15,20 +15,22 @@
  */
 package net.ymate.module.fileuploader;
 
-import net.ymate.platform.webmvc.view.impl.JsonView;
+import net.ymate.module.fileuploader.model.Attachment;
 
 /**
- * 上传文件结果处理器接口
+ * 用于处理被访问资源是否允许
  *
- * @author 刘镇 (suninformation@163.com) on 16/5/9 上午1:04
+ * @author 刘镇 (suninformation@163.com) on 2018/7/16 下午6:55
  * @version 1.0
  */
-public interface IUploadResultProcessor {
+public interface IResourcesAccessProcessor {
 
     /**
-     * @param fileMeta 上传文件元数据对象
-     * @return 返回自定义结果视图
-     * @throws Exception 可能产生任何异常
+     * 验证资源是否允许访问
+     *
+     * @param attachment 资源记录对象
+     * @return 允许访问则返回true
+     * @throws Exception 可能产生的任何异常
      */
-    JsonView process(UploadFileMeta fileMeta) throws Exception;
+    boolean process(Attachment attachment) throws Exception;
 }

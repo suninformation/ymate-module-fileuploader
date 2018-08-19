@@ -1,5 +1,5 @@
 /*
- * Copyright 2007-2017 the original author or authors.
+ * Copyright 2007-2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,14 +19,9 @@ import net.ymate.framework.commons.HttpClientHelper;
 import net.ymate.framework.commons.IHttpResponse;
 import net.ymate.framework.core.util.WebUtils;
 import net.ymate.framework.webmvc.WebResult;
-import net.ymate.framework.webmvc.intercept.AjaxAllowCrossDomainInterceptor;
-import net.ymate.framework.webmvc.intercept.UserSessionCheckInterceptor;
 import net.ymate.module.fileuploader.*;
 import net.ymate.module.fileuploader.model.Attachment;
 import net.ymate.module.fileuploader.repository.IAttachmentRepository;
-import net.ymate.platform.core.beans.annotation.Around;
-import net.ymate.platform.core.beans.annotation.Before;
-import net.ymate.platform.core.beans.annotation.Clean;
 import net.ymate.platform.core.beans.annotation.Inject;
 import net.ymate.platform.core.lang.BlurObject;
 import net.ymate.platform.validation.validate.VLength;
@@ -60,8 +55,6 @@ import java.util.concurrent.TimeUnit;
  */
 @Controller
 @RequestMapping("/uploads")
-@Around(AjaxAllowCrossDomainInterceptor.class)
-@Before(UserSessionCheckInterceptor.class)
 public class UploadController {
 
     @Inject
@@ -162,7 +155,6 @@ public class UploadController {
      * @throws Exception 可能产生的任何异常
      */
     @RequestMapping("/resources/{type}/{hash}")
-    @Clean
     public IView __doResources(@PathVariable String type,
                                @PathVariable String hash) throws Exception {
         // 非代理模式
@@ -188,7 +180,7 @@ public class UploadController {
                     }
                 }
                 //
-                Attachment _resource = null;
+                Attachment _resource;
                 if (_resType.equals(IFileUploader.ResourceType.THUMB)) {
                     _resource = __repo.getResource(IFileUploader.ResourceType.VIDEO, hash);
                 } else {
@@ -230,7 +222,7 @@ public class UploadController {
         }
     }
 
-    private boolean __doBrowserCacheWarp(File _resFile, int cacheTimeout) throws Exception {
+    private boolean __doBrowserCacheWarp(File _resFile, int cacheTimeout) {
         //
         long _lastModified = _resFile.lastModified();
         _lastModified = TimeUnit.MILLISECONDS.toSeconds(_lastModified);
