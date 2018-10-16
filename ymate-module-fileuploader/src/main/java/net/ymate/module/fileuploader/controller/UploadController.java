@@ -34,6 +34,7 @@ import net.ymate.platform.webmvc.view.IView;
 import net.ymate.platform.webmvc.view.View;
 import net.ymate.platform.webmvc.view.impl.BinaryView;
 import net.ymate.platform.webmvc.view.impl.HttpStatusView;
+import org.apache.commons.fileupload.FileUploadBase;
 import org.apache.commons.lang.StringUtils;
 import org.apache.http.entity.ContentType;
 import org.apache.http.entity.mime.content.InputStreamBody;
@@ -75,7 +76,7 @@ public class UploadController {
         // 检查上传的文件ContentType是否在允许列表中
         if (!FileUploader.get().getModuleCfg().getAllowContentTypes().isEmpty()
                 && !FileUploader.get().getModuleCfg().getAllowContentTypes().contains(file.getContentType())) {
-            return WebResult.CODE(HttpServletResponse.SC_UNSUPPORTED_MEDIA_TYPE).toJSON();
+            throw new FileUploadBase.InvalidContentTypeException("Upload file ContentType invalid.");
         }
         // 非代理模式
         if (!FileUploader.get().getModuleCfg().isProxyMode()) {
