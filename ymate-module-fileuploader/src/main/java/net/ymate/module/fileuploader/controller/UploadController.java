@@ -18,6 +18,7 @@ package net.ymate.module.fileuploader.controller;
 import net.ymate.framework.commons.HttpClientHelper;
 import net.ymate.framework.commons.IHttpResponse;
 import net.ymate.framework.core.util.WebUtils;
+import net.ymate.framework.exception.RequestUnauthorizedException;
 import net.ymate.framework.webmvc.WebResult;
 import net.ymate.module.fileuploader.*;
 import net.ymate.module.fileuploader.model.Attachment;
@@ -215,6 +216,8 @@ public class UploadController {
                 }
             } catch (IllegalArgumentException e) {
                 _returnView = View.httpStatusView(HttpServletResponse.SC_BAD_REQUEST);
+            } catch (RequestUnauthorizedException e) {
+                _returnView = View.httpStatusView(HttpServletResponse.SC_UNAUTHORIZED, e.getMessage());
             }
             return _returnView == null ? HttpStatusView.NOT_FOUND : _returnView;
         } else {

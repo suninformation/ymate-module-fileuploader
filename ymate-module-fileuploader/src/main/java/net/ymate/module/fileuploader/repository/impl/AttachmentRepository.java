@@ -182,7 +182,7 @@ public class AttachmentRepository implements IAttachmentRepository {
         if (_attach != null) {
             IResourcesAccessProcessor _processor = FileUploader.get().getModuleCfg().getResourceAccessProcessor();
             if (_processor != null && !_processor.process(_attach)) {
-                throw new RequestUnauthorizedException();
+                throw new RequestUnauthorizedException(resourceType.name() + ":" + hash);
             }
             YMP.get().getEvents().fireEvent(new FileUploadEvent(FileUploader.get(), FileUploadEvent.EVENT.FILE_DOWNLOADED).setEventSource(_attach));
         }
