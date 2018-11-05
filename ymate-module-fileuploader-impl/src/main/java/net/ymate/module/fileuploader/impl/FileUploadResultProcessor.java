@@ -21,8 +21,6 @@ import net.ymate.framework.core.util.WebUtils;
 import net.ymate.module.fileuploader.IUploadResultProcessor;
 import net.ymate.module.fileuploader.UploadFileMeta;
 import net.ymate.module.fileuploader.annotation.UploadResultProcessor;
-import net.ymate.platform.webmvc.view.View;
-import net.ymate.platform.webmvc.view.impl.JsonView;
 import org.apache.commons.lang.StringUtils;
 
 /**
@@ -35,7 +33,7 @@ import org.apache.commons.lang.StringUtils;
 public class FileUploadResultProcessor implements IUploadResultProcessor {
 
     @Override
-    public JsonView process(UploadFileMeta fileMeta) throws Exception {
+    public JSONObject process(UploadFileMeta fileMeta) throws Exception {
         // {"files":[{"thumbnailUrl":"update/a.jpg","name":"01.png","size":"300k"}]}
         JSONArray _filesArr = new JSONArray();
         JSONObject _fileObj = new JSONObject();
@@ -50,6 +48,6 @@ public class FileUploadResultProcessor implements IUploadResultProcessor {
         //
         JSONObject _json = new JSONObject();
         _json.put("files", _filesArr);
-        return View.jsonView(_json);
+        return _json;
     }
 }

@@ -15,7 +15,7 @@
 
     <dependency>
         <groupId>net.ymate.module</groupId>
-        <artifactId>ymate-module-fileuploader</artifactId>
+        <artifactId>ymate-module-fileuploader-impl</artifactId>
         <version>1.0-SNAPSHOT</version>
     </dependency>
 

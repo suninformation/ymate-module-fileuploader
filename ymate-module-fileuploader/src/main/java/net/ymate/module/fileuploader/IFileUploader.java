@@ -59,7 +59,35 @@ public interface IFileUploader {
     /**
      * @return 返回文件哈希值缓存对象
      */
-    ICache getMatchHashCache();
+    ICache getMatchFileHashCache();
+
+    /**
+     * 执行文件上传
+     *
+     * @param fileWrapper 上传文件对象包装器
+     * @return 返回上传文件描述对象
+     * @throws Exception 可能产生的任何异常
+     */
+    UploadFileMeta upload(IFileWrapper fileWrapper) throws Exception;
+
+    /**
+     * 匹配文件哈希值
+     *
+     * @param hash 文件哈希值
+     * @return 若匹配成功则返回文件访问URL地址, 否则返回空
+     * @throws Exception 可能产生的任何异常
+     */
+    String match(String hash) throws Exception;
+
+    /**
+     * 加载资源
+     *
+     * @param resourceType 资源类型
+     * @param hash         文件哈希值
+     * @return 若存在则返回文件对象包装器接口实例, 否则返回空
+     * @throws Exception 可能产生的任何异常
+     */
+    IFileWrapper resources(IFileUploader.ResourceType resourceType, String hash) throws Exception;
 
     /**
      * 文件资源类型枚举

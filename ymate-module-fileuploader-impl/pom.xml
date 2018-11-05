@@ -10,13 +10,13 @@
         <version>1</version>
     </parent>
 
-    <artifactId>ymate-module-fileuploader</artifactId>
+    <artifactId>ymate-module-fileuploader-impl</artifactId>
     <version>1.0-SNAPSHOT</version>
     <packaging>jar</packaging>
 
-    <name>ymate-module-fileuploader</name>
+    <name>ymate-module-fileuploader-impl</name>
     <url>http://www.ymate.net/</url>
-    <description>FileUploader for YMP</description>
+    <description>FileUploader Implements for YMP</description>
 
     <build>
         <resources>
@@ -37,7 +37,7 @@
                         <archive>
                             <manifestSections>
                                 <manifestSection>
-                                    <name>net/ymate/module/fileuploader/</name>
+                                    <name>net/ymate/module/fileuploader/impl/</name>
                                 </manifestSection>
                             </manifestSections>
                             <manifestEntries>
@@ -59,28 +59,24 @@
             <artifactId>junit</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.jhlabs</groupId>
-            <artifactId>filters</artifactId>
+            <groupId>javax.servlet</groupId>
+            <artifactId>servlet-api</artifactId>
         </dependency>
         <dependency>
-            <groupId>net.coobird</groupId>
-            <artifactId>thumbnailator</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.httpcomponents</groupId>
-            <artifactId>httpmime</artifactId>
+            <groupId>javax.servlet.jsp</groupId>
+            <artifactId>jsp-api</artifactId>
         </dependency>
         <dependency>
             <groupId>net.ymate.platform</groupId>
-            <artifactId>ymate-platform-cache</artifactId>
+            <artifactId>ymate-platform-webmvc</artifactId>
         </dependency>
         <dependency>
             <groupId>net.ymate.framework</groupId>
-            <artifactId>ymate-framework-commons</artifactId>
+            <artifactId>ymate-framework-core</artifactId>
         </dependency>
         <dependency>
             <groupId>net.ymate.module</groupId>
-            <artifactId>ymate-module-fileuploader-model</artifactId>
+            <artifactId>ymate-module-fileuploader</artifactId>
             <version>${project.version}</version>
         </dependency>
     </dependencies>

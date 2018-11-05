@@ -15,8 +15,6 @@
  */
 package net.ymate.module.fileuploader.repository.impl;
 
-import net.ymate.framework.core.util.WebUtils;
-import net.ymate.framework.exception.RequestUnauthorizedException;
 import net.ymate.module.fileuploader.*;
 import net.ymate.module.fileuploader.model.Attachment;
 import net.ymate.module.fileuploader.repository.IAttachmentRepository;
@@ -24,13 +22,10 @@ import net.ymate.platform.cache.CacheElement;
 import net.ymate.platform.core.YMP;
 import net.ymate.platform.core.beans.annotation.Bean;
 import net.ymate.platform.core.lang.PairObject;
-import net.ymate.platform.core.util.FileUtils;
 import net.ymate.platform.core.util.UUIDUtils;
 import net.ymate.platform.persistence.Fields;
 import net.ymate.platform.persistence.jdbc.annotation.Transaction;
 import net.ymate.platform.persistence.jdbc.query.IDBLocker;
-import net.ymate.platform.webmvc.IUploadFileWrapper;
-import net.ymate.platform.webmvc.context.WebContext;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang.StringUtils;
 
@@ -49,7 +44,7 @@ public class AttachmentRepository implements IAttachmentRepository {
     private static final String FILE_META_CACHE_PREFIX = "file_meta_hash_";
 
     private String __doGetResourceURLFromCache(String hash) {
-        CacheElement _element = (CacheElement) FileUploader.get().getMatchHashCache().get(RESOURCE_CACHE_PREFIX + hash);
+        CacheElement _element = (CacheElement) FileUploader.get().getMatchFileHashCache().get(RESOURCE_CACHE_PREFIX + hash);
         if (_element != null) {
             return (String) _element.getObject();
         }
@@ -57,7 +52,7 @@ public class AttachmentRepository implements IAttachmentRepository {
     }
 
     private UploadFileMeta __doGetUploadFileMetaFromCache(String hash) {
-        CacheElement _element = (CacheElement) FileUploader.get().getMatchHashCache().get(FILE_META_CACHE_PREFIX + hash);
+        CacheElement _element = (CacheElement) FileUploader.get().getMatchFileHashCache().get(FILE_META_CACHE_PREFIX + hash);
         if (_element != null) {
             return (UploadFileMeta) _element.getObject();
         }
@@ -65,22 +60,24 @@ public class AttachmentRepository implements IAttachmentRepository {
     }
 
     private void __doPutElementToCache(String prefix, String hash, Object element) {
-        FileUploader.get().getMatchHashCache().put(prefix + hash, new CacheElement(element, FileUploader.get().getModuleCfg().getCacheTimeout()));
+        FileUploader.get().getMatchFileHashCache().put(prefix + hash, new CacheElement(element, FileUploader.get().getModuleCfg().getCacheTimeout()));
     }
 
     @Override
     @Transaction
-    public UploadFileMeta uploadFile(IUploadFileWrapper fileWrapper) throws Exception {
+    public UploadFileMeta uploadFile(IFileWrapper fileWrapper) throws Exception {
         // 通过对文件签名的方式获取唯一ID
         String _hash = DigestUtils.md5Hex(fileWrapper.getInputStream());
         // 先尝试从缓存中加载
         UploadFileMeta _fileMeta = __doGetUploadFileMetaFromCache(_hash);
         if (_fileMeta == null) {
+            String _suffix = StringUtils.isNotBlank(fileWrapper.getSuffix()) ? "." + fileWrapper.getSuffix() : "";
+            //
             _fileMeta = new UploadFileMeta();
             _fileMeta.setHash(_hash);
-            _fileMeta.setTitle(StringUtils.substringBeforeLast(fileWrapper.getName(), "."));
-            _fileMeta.setFilename(fileWrapper.getName());
-            _fileMeta.setSize(fileWrapper.getSize());
+            _fileMeta.setTitle(fileWrapper.getName());
+            _fileMeta.setFilename(fileWrapper.getName() + _suffix);
+            _fileMeta.setSize(fileWrapper.getContentLength());
             //
             IFileStorageAdapter _storageAdapter = FileUploader.get().getModuleCfg().getFileStorageAdapter();
             Attachment _attach = __doMatchHash(_hash, null);
@@ -95,7 +92,7 @@ public class AttachmentRepository implements IAttachmentRepository {
                     _attach = new Attachment.AttachmentBuilder(_attach).staticUrl(FileUploader.get().getModuleCfg().getResourcesBaseUrl())
                             .sourcePath(_result.getValue())
                             .lastModifyTime(System.currentTimeMillis())
-                            .fileSize(fileWrapper.getSize())
+                            .fileSize(fileWrapper.getContentLength())
                             .build().update(Fields.create(Attachment.FIELDS.STATIC_URL, Attachment.FIELDS.SOURCE_PATH, Attachment.FIELDS.LAST_MODIFY_TIME, Attachment.FIELDS.FILE_SIZE));
                     //
                     YMP.get().getEvents().fireEvent(new FileUploadEvent(FileUploader.get(), FileUploadEvent.EVENT.FILE_UPLOADED_UPDATE).setEventSource(_attach));
@@ -116,8 +113,8 @@ public class AttachmentRepository implements IAttachmentRepository {
                             .sourcePath(_result.getValue())
                             .mimeType(fileWrapper.getContentType())
                             .createTime(System.currentTimeMillis())
-                            .extension(FileUtils.getExtName(fileWrapper.getName()))
-                            .fileSize(fileWrapper.getSize())
+                            .extension(fileWrapper.getSuffix())
+                            .fileSize(fileWrapper.getContentLength())
                             .build().save();
                     //
                     YMP.get().getEvents().fireEvent(new FileUploadEvent(FileUploader.get(), FileUploadEvent.EVENT.FILE_UPLOADED_CREATE).setEventSource(_attach));
@@ -149,8 +146,7 @@ public class AttachmentRepository implements IAttachmentRepository {
             }
             return _resourcesBaseUrl + sourcePath;
         }
-        _resourcesBaseUrl = type.name().toLowerCase() + "/" + hash;
-        return WebUtils.buildURL(WebContext.getRequest(), "/uploads/resources/" + _resourcesBaseUrl, true);
+        return type.name().toLowerCase() + "/" + hash;
     }
 
     @Override
@@ -182,7 +178,7 @@ public class AttachmentRepository implements IAttachmentRepository {
         if (_attach != null) {
             IResourcesAccessProcessor _processor = FileUploader.get().getModuleCfg().getResourceAccessProcessor();
             if (_processor != null && !_processor.process(_attach)) {
-                throw new RequestUnauthorizedException(resourceType.name() + ":" + hash);
+                throw new ResourcesAccessException(resourceType, hash);
             }
             YMP.get().getEvents().fireEvent(new FileUploadEvent(FileUploader.get(), FileUploadEvent.EVENT.FILE_DOWNLOADED).setEventSource(_attach));
         }

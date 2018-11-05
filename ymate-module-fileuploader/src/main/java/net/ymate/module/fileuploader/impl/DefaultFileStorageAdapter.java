@@ -16,15 +16,11 @@
 package net.ymate.module.fileuploader.impl;
 
 import net.ymate.framework.commons.DateTimeHelper;
-import net.ymate.module.fileuploader.FileUploader;
-import net.ymate.module.fileuploader.IFileStorageAdapter;
-import net.ymate.module.fileuploader.IFileUploader;
-import net.ymate.module.fileuploader.IFileUploaderModuleCfg;
+import net.ymate.module.fileuploader.*;
 import net.ymate.platform.core.lang.BlurObject;
 import net.ymate.platform.core.lang.PairObject;
 import net.ymate.platform.core.util.DateTimeUtils;
 import net.ymate.platform.core.util.FileUtils;
-import net.ymate.platform.webmvc.IUploadFileWrapper;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
@@ -57,7 +53,7 @@ public class DefaultFileStorageAdapter implements IFileStorageAdapter {
     }
 
     @Override
-    public PairObject<Integer, String> saveFile(String hash, IUploadFileWrapper file) throws Exception {
+    public PairObject<Integer, String> saveFile(String hash, IFileWrapper file) throws Exception {
         IFileUploader.ResourceType _fileType = IFileUploader.ResourceType.valueOf(StringUtils.substringBefore(file.getContentType(), "/").toUpperCase());
         // 转存文件，路径格式：{TYPE_NAME}/{octal_yyyy}/{MMdd}/{HHmmss}_{FILE_HASH_8BIT}_{NODE_ID}
         StringBuilder _sourcePath = new StringBuilder(_fileType.name().toLowerCase())
@@ -67,11 +63,10 @@ public class DefaultFileStorageAdapter implements IFileStorageAdapter {
                 .append(StringUtils.substring(hash, 0, 8))
                 .append("_").append(StringUtils.substring(DigestUtils.md5Hex(__owner.getModuleCfg().getNodeId()), 0, 8));
         // 检查并创建目标目录
-        String _extension = StringUtils.trimToNull(FileUtils.getExtName(file.getName()));
-        _sourcePath.append(_extension == null ? "" : "." + _extension);
-        String _sourcePathStr = _sourcePath.toString();
+        String _extension = StringUtils.trimToNull(file.getSuffix());
+        String _sourcePathStr = _sourcePath.append(_extension == null ? "" : "." + _extension).toString();
         File _targetFile = new File(__owner.getModuleCfg().getFileStoragePath(), _sourcePathStr);
-        org.apache.commons.io.FileUtils.copyInputStreamToFile(file.getInputStream(), _targetFile);
+        file.writeTo(_targetFile);
         //
         createThumbFiles(_targetFile);
         //

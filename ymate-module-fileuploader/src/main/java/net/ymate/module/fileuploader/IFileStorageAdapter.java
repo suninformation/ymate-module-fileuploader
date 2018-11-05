@@ -16,7 +16,6 @@
 package net.ymate.module.fileuploader;
 
 import net.ymate.platform.core.lang.PairObject;
-import net.ymate.platform.webmvc.IUploadFileWrapper;
 
 import java.io.File;
 
@@ -54,7 +53,7 @@ public interface IFileStorageAdapter {
      * @return 返回文件类型和资源路径
      * @throws Exception 可能产生的任何异常
      */
-    PairObject<Integer, String> saveFile(String hash, IUploadFileWrapper file) throws Exception;
+    PairObject<Integer, String> saveFile(String hash, IFileWrapper file) throws Exception;
 
     /**
      * @param hash       文件哈希值

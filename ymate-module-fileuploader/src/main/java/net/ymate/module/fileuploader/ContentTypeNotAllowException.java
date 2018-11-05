@@ -15,20 +15,24 @@
  */
 package net.ymate.module.fileuploader;
 
-import com.alibaba.fastjson.JSONObject;
-
 /**
- * 上传文件结果处理器接口
- *
- * @author 刘镇 (suninformation@163.com) on 16/5/9 上午1:04
+ * @author 刘镇 (suninformation@163.com) on 2018/11/5 上午11:46
  * @version 1.0
  */
-public interface IUploadResultProcessor {
+public class ContentTypeNotAllowException extends Exception {
 
-    /**
-     * @param fileMeta 上传文件元数据对象
-     * @return 返回自定义JSON结果对象
-     * @throws Exception 可能产生任何异常
-     */
-    JSONObject process(UploadFileMeta fileMeta) throws Exception;
+    public ContentTypeNotAllowException() {
+    }
+
+    public ContentTypeNotAllowException(String message) {
+        super(message);
+    }
+
+    public ContentTypeNotAllowException(String message, Throwable cause) {
+        super(message, cause);
+    }
+
+    public ContentTypeNotAllowException(Throwable cause) {
+        super(cause);
+    }
 }

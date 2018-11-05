@@ -15,20 +15,27 @@
  */
 package net.ymate.module.fileuploader;
 
-import com.alibaba.fastjson.JSONObject;
-
 /**
- * 上传文件结果处理器接口
- *
- * @author 刘镇 (suninformation@163.com) on 16/5/9 上午1:04
+ * @author 刘镇 (suninformation@163.com) on 2018/11/5 上午10:29
  * @version 1.0
  */
-public interface IUploadResultProcessor {
+public class ResourcesAccessException extends Exception {
 
-    /**
-     * @param fileMeta 上传文件元数据对象
-     * @return 返回自定义JSON结果对象
-     * @throws Exception 可能产生任何异常
-     */
-    JSONObject process(UploadFileMeta fileMeta) throws Exception;
+    private IFileUploader.ResourceType resourceType;
+
+    private String hash;
+
+    public ResourcesAccessException(IFileUploader.ResourceType resourceType, String hash) {
+        super(resourceType.name() + ":" + hash);
+        this.resourceType = resourceType;
+        this.hash = hash;
+    }
+
+    public IFileUploader.ResourceType getResourceType() {
+        return resourceType;
+    }
+
+    public String getHash() {
+        return hash;
+    }
 }

@@ -16,9 +16,9 @@
 package net.ymate.module.fileuploader.repository;
 
 import net.ymate.module.fileuploader.IFileUploader;
+import net.ymate.module.fileuploader.IFileWrapper;
 import net.ymate.module.fileuploader.UploadFileMeta;
 import net.ymate.module.fileuploader.model.Attachment;
-import net.ymate.platform.webmvc.IUploadFileWrapper;
 
 /**
  * @author 刘镇 (suninformation@163.com) on 16/11/3 上午3:53
@@ -33,7 +33,7 @@ public interface IAttachmentRepository {
      * @return 返回上传文件的元描述对象
      * @throws Exception 可能产生的任何异常
      */
-    UploadFileMeta uploadFile(IUploadFileWrapper fileWrapper) throws Exception;
+    UploadFileMeta uploadFile(IFileWrapper fileWrapper) throws Exception;
 
     /**
      * 通过比较文件哈希值来判断文件是否已存在
