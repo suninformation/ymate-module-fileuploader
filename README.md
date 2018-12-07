@@ -16,7 +16,7 @@
     <dependency>
         <groupId>net.ymate.module</groupId>
         <artifactId>ymate-module-fileuploader-impl</artifactId>
-        <version>1.0-SNAPSHOT</version>
+        <version>1.1-SNAPSHOT</version>
     </dependency>
 
 ### 模块配置参数说明

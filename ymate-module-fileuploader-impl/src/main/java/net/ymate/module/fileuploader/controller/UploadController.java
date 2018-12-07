@@ -59,6 +59,7 @@ public class UploadController {
     @FileUpload
     public IView __doUpload(@VRequired
                             @RequestParam IUploadFileWrapper file, @RequestParam String type) throws Exception {
+        // TODO 需支持断点续传，基于HTTP chunked编码
         try {
             UploadFileMeta _meta = FileUploader.get().upload(new IFileWrapper.NEW(file.getName(), file.getContentType(), file.getFile()));
             _meta.setUrl(__doFixedResourceUrl(_meta.getUrl()));
