@@ -53,7 +53,7 @@ public class DefaultFileStorageAdapter implements IFileStorageAdapter {
     }
 
     @Override
-    public PairObject<Integer, String> saveFile(String hash, IFileWrapper file) throws Exception {
+    public PairObject<IFileUploader.ResourceType, String> saveFile(String hash, IFileWrapper file) throws Exception {
         IFileUploader.ResourceType _fileType = IFileUploader.ResourceType.valueOf(StringUtils.substringBefore(file.getContentType(), "/").toUpperCase());
         // 转存文件，路径格式：{TYPE_NAME}/{octal_yyyy}/{MMdd}/{HHmmss}_{FILE_HASH_8BIT}_{NODE_ID}
         StringBuilder _sourcePath = new StringBuilder(_fileType.name().toLowerCase())
@@ -70,7 +70,7 @@ public class DefaultFileStorageAdapter implements IFileStorageAdapter {
         //
         createThumbFiles(_targetFile);
         //
-        return new PairObject<Integer, String>(_fileType.type(), _sourcePathStr);
+        return new PairObject<IFileUploader.ResourceType, String>(_fileType, _sourcePathStr);
     }
 
     @Override

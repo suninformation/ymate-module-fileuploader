@@ -87,7 +87,7 @@ public class AttachmentRepository implements IAttachmentRepository {
                     // 加锁
                     Attachment.builder().id(_attach.getId()).build().load(Fields.create(Attachment.FIELDS.ID), IDBLocker.DEFAULT);
                     // 保存文件
-                    PairObject<Integer, String> _result = _storageAdapter.saveFile(_hash, fileWrapper);
+                    PairObject<IFileUploader.ResourceType, String> _result = _storageAdapter.saveFile(_hash, fileWrapper);
                     // 更新记录
                     _attach = new Attachment.AttachmentBuilder(_attach).staticUrl(FileUploader.get().getModuleCfg().getResourcesBaseUrl())
                             .sourcePath(_result.getValue())
@@ -101,14 +101,14 @@ public class AttachmentRepository implements IAttachmentRepository {
                 _fileMeta.setUrl(__doBuildResourceUrl(_hash, _fileMeta.getType(), _attach.getSourcePath()));
             } else {
                 // 若记录不存在时, 尝试保存文件
-                PairObject<Integer, String> _result = _storageAdapter.saveFile(_hash, fileWrapper);
+                PairObject<IFileUploader.ResourceType, String> _result = _storageAdapter.saveFile(_hash, fileWrapper);
                 if (_result != null) {
-                    _fileMeta.setType(IFileUploader.ResourceType.valueOf(_result.getKey()));
+                    _fileMeta.setType(_result.getKey());
                     _fileMeta.setUrl(__doBuildResourceUrl(_hash, _fileMeta.getType(), _result.getValue()));
                     // 插入文件记录
                     _attach = Attachment.builder().id(UUIDUtils.UUID())
                             .hash(_hash)
-                            .type(_result.getKey())
+                            .type(_result.getKey().type())
                             .staticUrl(FileUploader.get().getModuleCfg().getResourcesBaseUrl())
                             .sourcePath(_result.getValue())
                             .mimeType(fileWrapper.getContentType())
