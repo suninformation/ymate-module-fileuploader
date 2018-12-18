@@ -16,10 +16,10 @@
 package net.ymate.module.fileuploader.impl;
 
 import com.alibaba.fastjson.JSONObject;
-import net.ymate.framework.core.util.WebUtils;
 import net.ymate.module.fileuploader.IUploadResultProcessor;
 import net.ymate.module.fileuploader.UploadFileMeta;
 import net.ymate.module.fileuploader.annotation.UploadResultProcessor;
+import net.ymate.platform.webmvc.util.WebUtils;
 import org.apache.commons.lang.StringUtils;
 
 /**

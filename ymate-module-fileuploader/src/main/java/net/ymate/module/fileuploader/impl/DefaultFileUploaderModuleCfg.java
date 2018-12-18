@@ -17,8 +17,8 @@ package net.ymate.module.fileuploader.impl;
 
 import net.ymate.module.fileuploader.*;
 import net.ymate.platform.core.YMP;
-import net.ymate.platform.core.lang.BlurObject;
-import net.ymate.platform.core.util.ClassUtils;
+import net.ymate.platform.core.support.IConfigReader;
+import net.ymate.platform.core.support.impl.MapSafeConfigReader;
 import net.ymate.platform.core.util.RuntimeUtils;
 import org.apache.commons.lang.NullArgumentException;
 import org.apache.commons.lang.StringUtils;
@@ -27,13 +27,12 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
 
 /**
  * @author 刘镇 (suninformation@163.com) on 16/3/30 下午5:46
  * @version 1.0
  */
-public class DefaultModuleCfg implements IFileUploaderModuleCfg {
+public class DefaultFileUploaderModuleCfg implements IFileUploaderModuleCfg {
 
     private String __nodeId;
 
@@ -65,12 +64,12 @@ public class DefaultModuleCfg implements IFileUploaderModuleCfg {
 
     private List<String> __allowContentTypes;
 
-    public DefaultModuleCfg(YMP owner) {
-        Map<String, String> _moduleCfgs = owner.getConfig().getModuleConfigs(IFileUploader.MODULE_NAME);
+    public DefaultFileUploaderModuleCfg(YMP owner) {
+        IConfigReader _moduleCfg = MapSafeConfigReader.bind(owner.getConfig().getModuleConfigs(IFileUploader.MODULE_NAME));
         //
-        __proxyMode = BlurObject.bind(_moduleCfgs.get("proxy_mode")).toBooleanValue();
+        __proxyMode = _moduleCfg.getBoolean(PROXY_MODE);
         //
-        __fileStoragePath = new File(RuntimeUtils.replaceEnvVariable(StringUtils.defaultIfBlank(_moduleCfgs.get("file_storage_path"), "${root}/upload_files")));
+        __fileStoragePath = new File(RuntimeUtils.replaceEnvVariable(_moduleCfg.getString(FILE_STORAGE_PATH, "${root}/upload_files")));
         if (!__proxyMode) {
             if (!__fileStoragePath.isAbsolute() ||
                     !__fileStoragePath.exists() ||
@@ -80,13 +79,13 @@ public class DefaultModuleCfg implements IFileUploaderModuleCfg {
             }
         }
         //
-        __nodeId = StringUtils.defaultIfBlank(_moduleCfgs.get("node_id"), "unknown");
+        __nodeId = _moduleCfg.getString(NODE_ID, "unknown");
         //
-        __cacheNamePrefix = StringUtils.trimToEmpty(_moduleCfgs.get("cache_name_prefix"));
+        __cacheNamePrefix = _moduleCfg.getString(CACHE_NAME_PREFIX);
         //
-        __cacheTimeout = BlurObject.bind(_moduleCfgs.get("cache_timeout")).toIntValue();
+        __cacheTimeout = _moduleCfg.getInt(CACHE_TIMEOUT);
         //
-        __resourcesBaseUrl = StringUtils.trimToNull(_moduleCfgs.get("resources_base_url"));
+        __resourcesBaseUrl = StringUtils.trimToNull(_moduleCfg.getString(RESOURCES_BASE_URL));
         if (__resourcesBaseUrl != null) {
             if (!StringUtils.startsWithIgnoreCase(__resourcesBaseUrl, "http://") &&
                     !StringUtils.startsWithIgnoreCase(__resourcesBaseUrl, "https://")) {
@@ -96,42 +95,42 @@ public class DefaultModuleCfg implements IFileUploaderModuleCfg {
             }
         }
         //
-        __resourcesAccessProcessor = ClassUtils.impl(_moduleCfgs.get("resources_access_processor_class"), IResourcesAccessProcessor.class, this.getClass());
+        __resourcesAccessProcessor = _moduleCfg.getClassImpl(RESOURCES_ACCESS_PROCESSOR_CLASS, IResourcesAccessProcessor.class);
         //
-        __resourcesCacheTimeout = BlurObject.bind(_moduleCfgs.get("resources_cache_timeout")).toIntValue();
+        __resourcesCacheTimeout = _moduleCfg.getInt(RESOURCES_CACHE_TIMEOUT);
         int _oneYear = 60 * 60 * 24 * 365;
         if (__resourcesCacheTimeout <= 0 || __resourcesCacheTimeout > _oneYear) {
             __resourcesCacheTimeout = _oneYear;
         }
         //
-        __fileStorageAdapter = ClassUtils.impl(_moduleCfgs.get("file_storage_adapter_class"), IFileStorageAdapter.class, this.getClass());
+        __fileStorageAdapter = _moduleCfg.getClassImpl(FILE_STORAGE_ADAPTER_CLASS, IFileStorageAdapter.class);
         if (__fileStorageAdapter == null) {
             __fileStorageAdapter = new DefaultFileStorageAdapter();
         }
         //
-        __imageFileProcessor = ClassUtils.impl(_moduleCfgs.get("image_file_processor_class"), IImageFileProcessor.class, this.getClass());
+        __imageFileProcessor = _moduleCfg.getClassImpl(IMAGE_FILE_PROCESSOR_CLASS, IImageFileProcessor.class);
         if (__imageFileProcessor == null) {
             __imageFileProcessor = new DefaultImageFileProcessor();
         }
         //
-        __proxyServiceBaseUrl = StringUtils.trimToNull(_moduleCfgs.get("proxy_service_base_url"));
+        __proxyServiceBaseUrl = StringUtils.trimToNull(_moduleCfg.getString(PROXY_SERVICE_BASE_URL));
         if (__proxyMode) {
             if (__proxyServiceBaseUrl != null) {
                 if (!StringUtils.startsWithIgnoreCase(__proxyServiceBaseUrl, "http://") &&
                         !StringUtils.startsWithIgnoreCase(__proxyServiceBaseUrl, "https://")) {
-                    throw new IllegalArgumentException("The parameter proxy_service_base_url is invalid");
+                    throw new IllegalArgumentException("The parameter " + PROXY_SERVICE_BASE_URL + " is invalid");
                 } else if (!StringUtils.endsWith(__proxyServiceBaseUrl, "/")) {
                     __proxyServiceBaseUrl = __proxyServiceBaseUrl + "/";
                 }
             } else {
-                throw new NullArgumentException("proxy_service_base_url");
+                throw new NullArgumentException(PROXY_SERVICE_BASE_URL);
             }
         }
         //
-        __allowCustomThumbSize = BlurObject.bind(_moduleCfgs.get("allow_custom_thumb_size")).toBooleanValue();
+        __allowCustomThumbSize = _moduleCfg.getBoolean(ALLOW_CUSTOM_THUMB_SIZE);
         //
         __thumbSizeList = new ArrayList<String>();
-        String[] _tmpArr = StringUtils.split(_moduleCfgs.get("thumb_size_list"), '|');
+        String[] _tmpArr = _moduleCfg.getArray(THUMB_SIZE_LIST);
         if (_tmpArr != null && _tmpArr.length > 0) {
             for (String _thumbSize : _tmpArr) {
                 String[] _tmpThumb = StringUtils.split(_thumbSize, '_');
@@ -150,10 +149,10 @@ public class DefaultModuleCfg implements IFileUploaderModuleCfg {
             }
         }
         //
-        __thumbQuality = BlurObject.bind(_moduleCfgs.get("thumb_quality")).toFloatValue();
+        __thumbQuality = _moduleCfg.getFloat(THUMB_QUALITY);
         //
         __allowContentTypes = new ArrayList<String>();
-        _tmpArr = StringUtils.split(StringUtils.trimToEmpty(_moduleCfgs.get("allow_content_types")).toLowerCase(), '|');
+        _tmpArr = _moduleCfg.getArray(ALLOW_CONTENT_TYPES);
         if (_tmpArr != null && _tmpArr.length > 0) {
             __allowContentTypes.addAll(Arrays.asList(_tmpArr));
         }

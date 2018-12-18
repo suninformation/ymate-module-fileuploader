@@ -21,7 +21,7 @@ import net.ymate.framework.commons.HttpClientHelper;
 import net.ymate.framework.commons.IHttpResponse;
 import net.ymate.module.fileuploader.annotation.UploadResultProcessor;
 import net.ymate.module.fileuploader.handle.UploadResultProcessorHandler;
-import net.ymate.module.fileuploader.impl.DefaultModuleCfg;
+import net.ymate.module.fileuploader.impl.DefaultFileUploaderModuleCfg;
 import net.ymate.module.fileuploader.model.Attachment;
 import net.ymate.module.fileuploader.repository.IAttachmentRepository;
 import net.ymate.platform.cache.Caches;
@@ -48,7 +48,7 @@ public class FileUploader implements IModule, IFileUploader {
 
     private static final Log _LOG = LogFactory.getLog(FileUploader.class);
 
-    public static final Version VERSION = new Version(1, 0, 0, FileUploader.class.getPackage().getImplementationVersion(), Version.VersionType.Alphal);
+    public static final Version VERSION = new Version(1, 0, 0, FileUploader.class.getPackage().getImplementationVersion(), Version.VersionType.Alpha);
 
     private static volatile IFileUploader __instance;
 
@@ -85,7 +85,7 @@ public class FileUploader implements IModule, IFileUploader {
             _LOG.info("Initializing ymate-module-fileuploader-" + VERSION);
             //
             __owner = owner;
-            __moduleCfg = new DefaultModuleCfg(owner);
+            __moduleCfg = new DefaultFileUploaderModuleCfg(owner);
             __owner.getEvents().registerEvent(FileUploadEvent.class);
             __owner.registerHandler(UploadResultProcessor.class, new UploadResultProcessorHandler(this));
             //

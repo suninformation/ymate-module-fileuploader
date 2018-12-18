@@ -24,6 +24,36 @@ import java.util.List;
  */
 public interface IFileUploaderModuleCfg {
 
+    String PROXY_MODE = "proxy_mode";
+
+    String FILE_STORAGE_PATH = "file_storage_path";
+
+    String NODE_ID = "node_id";
+
+    String CACHE_NAME_PREFIX = "cache_name_prefix";
+
+    String CACHE_TIMEOUT = "cache_timeout";
+
+    String RESOURCES_BASE_URL = "resources_base_url";
+
+    String RESOURCES_ACCESS_PROCESSOR_CLASS = "resources_access_processor_class";
+
+    String RESOURCES_CACHE_TIMEOUT = "resources_cache_timeout";
+
+    String FILE_STORAGE_ADAPTER_CLASS = "file_storage_adapter_class";
+
+    String IMAGE_FILE_PROCESSOR_CLASS = "image_file_processor_class";
+
+    String PROXY_SERVICE_BASE_URL = "proxy_service_base_url";
+
+    String ALLOW_CUSTOM_THUMB_SIZE = "allow_custom_thumb_size";
+
+    String THUMB_SIZE_LIST = "thumb_size_list";
+
+    String THUMB_QUALITY = "thumb_quality";
+
+    String ALLOW_CONTENT_TYPES = "allow_content_types";
+
     /**
      * @return 服务器节点标识符, 默认值: unknown
      */

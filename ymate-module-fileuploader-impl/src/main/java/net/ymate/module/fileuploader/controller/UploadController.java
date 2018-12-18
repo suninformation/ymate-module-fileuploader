@@ -15,8 +15,6 @@
  */
 package net.ymate.module.fileuploader.controller;
 
-import net.ymate.framework.core.util.WebUtils;
-import net.ymate.framework.webmvc.WebResult;
 import net.ymate.module.fileuploader.*;
 import net.ymate.platform.validation.validate.VLength;
 import net.ymate.platform.validation.validate.VRequired;
@@ -24,6 +22,8 @@ import net.ymate.platform.webmvc.IUploadFileWrapper;
 import net.ymate.platform.webmvc.annotation.*;
 import net.ymate.platform.webmvc.base.Type;
 import net.ymate.platform.webmvc.context.WebContext;
+import net.ymate.platform.webmvc.util.WebResult;
+import net.ymate.platform.webmvc.util.WebUtils;
 import net.ymate.platform.webmvc.view.IView;
 import net.ymate.platform.webmvc.view.View;
 import net.ymate.platform.webmvc.view.impl.BinaryView;
@@ -75,7 +75,7 @@ public class UploadController {
             if (StringUtils.isNotBlank(_meta.getTitle())) {
                 _meta.setTitle(WebUtils.decodeURL(_meta.getTitle()));
             }
-            return WebResult.SUCCESS().data(_meta).toJSON();
+            return WebResult.succeed().data(_meta).toJSON();
         } catch (ContentTypeNotAllowException e) {
             throw new FileUploadBase.InvalidContentTypeException(e.getMessage());
         }
@@ -94,9 +94,9 @@ public class UploadController {
                            @RequestParam String hash) throws Exception {
         String _sourcePath = __doFixedResourceUrl(FileUploader.get().match(hash));
         if (StringUtils.isNotBlank(_sourcePath)) {
-            return WebResult.SUCCESS().attr("matched", true).data(_sourcePath).toJSON();
+            return WebResult.succeed().attr("matched", true).data(_sourcePath).toJSON();
         }
-        return WebResult.SUCCESS().attr("matched", false).toJSON();
+        return WebResult.succeed().attr("matched", false).toJSON();
     }
 
     /**
