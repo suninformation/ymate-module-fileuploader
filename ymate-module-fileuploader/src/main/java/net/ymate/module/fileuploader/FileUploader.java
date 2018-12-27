@@ -131,10 +131,10 @@ public class FileUploader implements IModule, IFileUploader {
             return getOwner().getBean(IAttachmentRepository.class).uploadFile(fileWrapper);
         } else {
             // 以下是代理模式采用透传
-            IHttpResponse _result = HttpClientHelper.create().upload(__moduleCfg.getProxyServiceBaseUrl().concat("uploads/push"), "file", fileWrapper.toContentBody(), null);
+            IHttpResponse _result = HttpClientHelper.create().upload(__moduleCfg.getProxyServiceBaseUrl().concat("uploads/push?format=json"), "file", fileWrapper.toContentBody(), null);
             if (_result != null) {
                 _LOG.info(_result.toString());
-                if (_result.getStatusCode() != 200) {
+                if (_result.getStatusCode() == 200) {
                     JSONObject _jsonObj = JSON.parseObject(_result.getContent());
                     if (_jsonObj.containsKey("ret")) {
                         Integer _ret = _jsonObj.getInteger("ret");
@@ -158,10 +158,10 @@ public class FileUploader implements IModule, IFileUploader {
             Map<String, String> _params = new HashMap<String, String>();
             _params.put("hash", hash);
             //
-            IHttpResponse _result = HttpClientHelper.create().post(__moduleCfg.getProxyServiceBaseUrl().concat("uploads/match"), _params);
+            IHttpResponse _result = HttpClientHelper.create().post(__moduleCfg.getProxyServiceBaseUrl().concat("uploads/match?format=json"), _params);
             if (_result != null) {
                 _LOG.info(_result.toString());
-                if (_result.getStatusCode() != 200) {
+                if (_result.getStatusCode() == 200) {
                     JSONObject _jsonObj = JSON.parseObject(_result.getContent());
                     if (_jsonObj.containsKey("ret")) {
                         Integer _ret = _jsonObj.getInteger("ret");

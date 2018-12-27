@@ -15,6 +15,9 @@
  */
 package net.ymate.module.fileuploader;
 
+import net.ymate.platform.core.util.FileUtils;
+import net.ymate.platform.core.util.MimeTypeUtils;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -30,28 +33,19 @@ public interface IFileWrapper extends net.ymate.framework.commons.IFileWrapper {
 
         private File __sourceFile;
 
-        public NEW(String fileName, String contentType, long contentLength, File sourceFile) {
-            super(fileName, contentType, contentLength, null);
-            __sourceFile = sourceFile;
-        }
-
-        public NEW(String contentType, long contentLength, File sourceFile) {
-            super(contentType, contentLength, null);
-            __sourceFile = sourceFile;
-        }
-
-        public NEW(String contentType, File sourceFile) {
-            super(contentType, sourceFile.length(), null);
-            __sourceFile = sourceFile;
-        }
-
         public NEW(String fileName, String contentType, File sourceFile) {
             super(fileName, contentType, sourceFile.length(), null);
             __sourceFile = sourceFile;
         }
 
-        public NEW(String errMsg) {
-            super(errMsg);
+        public NEW(String contentType, File sourceFile) {
+            super(sourceFile.getName(), contentType, sourceFile.length(), null);
+            __sourceFile = sourceFile;
+        }
+
+        public NEW(File sourceFile) {
+            super(sourceFile.getName(), MimeTypeUtils.getFileMimeType(FileUtils.getExtName(sourceFile.getName())), sourceFile.length(), null);
+            __sourceFile = sourceFile;
         }
 
         @Override
