@@ -73,15 +73,6 @@ public class Attachment extends BaseEntity<Attachment, java.lang.String> {
     public Attachment() {
     }
 
-    /**
-     * 构造器
-     *
-     * @param id
-     * @param hash
-     * @param sourcePath
-     * @param mimeType
-     * @param createTime
-     */
     public Attachment(java.lang.String id, java.lang.String hash, java.lang.String sourcePath, java.lang.String mimeType, java.lang.Long createTime) {
         this.id = id;
         this.hash = hash;
@@ -90,21 +81,6 @@ public class Attachment extends BaseEntity<Attachment, java.lang.String> {
         this.createTime = createTime;
     }
 
-    /**
-     * 构造器
-     *
-     * @param id
-     * @param hash
-     * @param staticUrl
-     * @param sourcePath
-     * @param extension
-     * @param mimeType
-     * @param fileSize
-     * @param type
-     * @param status
-     * @param createTime
-     * @param lastModifyTime
-     */
     public Attachment(java.lang.String id, java.lang.String hash, java.lang.String staticUrl, java.lang.String sourcePath, java.lang.String extension, java.lang.String mimeType, java.lang.Long fileSize, java.lang.Integer type, java.lang.Integer status, java.lang.Long createTime, java.lang.Long lastModifyTime) {
         this.id = id;
         this.hash = hash;

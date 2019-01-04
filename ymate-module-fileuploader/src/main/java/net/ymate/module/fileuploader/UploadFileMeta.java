@@ -35,6 +35,12 @@ public class UploadFileMeta implements Serializable {
 
     private String url;
 
+    private String mimeType;
+
+    private String sourcePath;
+
+    private Integer status;
+
     public String getHash() {
         return hash;
     }
@@ -81,5 +87,29 @@ public class UploadFileMeta implements Serializable {
 
     public void setUrl(String url) {
         this.url = url;
+    }
+
+    public String getMimeType() {
+        return mimeType;
+    }
+
+    public void setMimeType(String mimeType) {
+        this.mimeType = mimeType;
+    }
+
+    public String getSourcePath() {
+        return sourcePath;
+    }
+
+    public void setSourcePath(String sourcePath) {
+        this.sourcePath = sourcePath;
+    }
+
+    public Integer getStatus() {
+        return status;
+    }
+
+    public void setStatus(Integer status) {
+        this.status = status;
     }
 }

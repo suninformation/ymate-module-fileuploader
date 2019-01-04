@@ -59,14 +59,6 @@ public class AttachmentAttribute extends BaseEntity<AttachmentAttribute, java.la
     public AttachmentAttribute() {
     }
 
-    /**
-     * 构造器
-     *
-     * @param id
-     * @param attachmentId
-     * @param attrKey
-     * @param createTime
-     */
     public AttachmentAttribute(java.lang.String id, java.lang.String attachmentId, java.lang.String attrKey, java.lang.Long createTime) {
         this.id = id;
         this.attachmentId = attachmentId;
@@ -74,18 +66,6 @@ public class AttachmentAttribute extends BaseEntity<AttachmentAttribute, java.la
         this.createTime = createTime;
     }
 
-    /**
-     * 构造器
-     *
-     * @param id
-     * @param attachmentId
-     * @param attrKey
-     * @param attrValue
-     * @param type
-     * @param owner
-     * @param createTime
-     * @param lastModifyTime
-     */
     public AttachmentAttribute(java.lang.String id, java.lang.String attachmentId, java.lang.String attrKey, java.lang.String attrValue, java.lang.Integer type, java.lang.String owner, java.lang.Long createTime, java.lang.Long lastModifyTime) {
         this.id = id;
         this.attachmentId = attachmentId;

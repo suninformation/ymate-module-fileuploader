@@ -44,7 +44,7 @@ public class DefaultFileUploaderModuleCfg implements IFileUploaderModuleCfg {
 
     private String __resourcesBaseUrl;
 
-    private IResourcesAccessProcessor __resourcesAccessProcessor;
+    private IResourcesProcessor __resourcesProcessor;
 
     private int __resourcesCacheTimeout;
 
@@ -55,6 +55,8 @@ public class DefaultFileUploaderModuleCfg implements IFileUploaderModuleCfg {
     private boolean __proxyMode;
 
     private String __proxyServiceBaseUrl;
+
+    private String __proxyServiceAuthKey;
 
     private boolean __allowCustomThumbSize;
 
@@ -95,7 +97,10 @@ public class DefaultFileUploaderModuleCfg implements IFileUploaderModuleCfg {
             }
         }
         //
-        __resourcesAccessProcessor = _moduleCfg.getClassImpl(RESOURCES_ACCESS_PROCESSOR_CLASS, IResourcesAccessProcessor.class);
+        __resourcesProcessor = _moduleCfg.getClassImpl(RESOURCES_PROCESSOR_CLASS, IResourcesProcessor.class);
+        if (!__proxyMode && __resourcesProcessor == null) {
+            throw new NullArgumentException(RESOURCES_PROCESSOR_CLASS);
+        }
         //
         __resourcesCacheTimeout = _moduleCfg.getInt(RESOURCES_CACHE_TIMEOUT);
         int _oneYear = 60 * 60 * 24 * 365;
@@ -104,7 +109,7 @@ public class DefaultFileUploaderModuleCfg implements IFileUploaderModuleCfg {
         }
         //
         __fileStorageAdapter = _moduleCfg.getClassImpl(FILE_STORAGE_ADAPTER_CLASS, IFileStorageAdapter.class);
-        if (__fileStorageAdapter == null) {
+        if (!__proxyMode && __fileStorageAdapter == null) {
             __fileStorageAdapter = new DefaultFileStorageAdapter();
         }
         //
@@ -126,6 +131,7 @@ public class DefaultFileUploaderModuleCfg implements IFileUploaderModuleCfg {
                 throw new NullArgumentException(PROXY_SERVICE_BASE_URL);
             }
         }
+        __proxyServiceAuthKey = StringUtils.trimToEmpty(_moduleCfg.getString(PROXY_SERVICE_AUTH_KEY));
         //
         __allowCustomThumbSize = _moduleCfg.getBoolean(ALLOW_CUSTOM_THUMB_SIZE);
         //
@@ -184,8 +190,8 @@ public class DefaultFileUploaderModuleCfg implements IFileUploaderModuleCfg {
     }
 
     @Override
-    public IResourcesAccessProcessor getResourceAccessProcessor() {
-        return __resourcesAccessProcessor;
+    public IResourcesProcessor getResourcesProcessor() {
+        return __resourcesProcessor;
     }
 
     @Override
@@ -211,6 +217,11 @@ public class DefaultFileUploaderModuleCfg implements IFileUploaderModuleCfg {
     @Override
     public String getProxyServiceBaseUrl() {
         return __proxyServiceBaseUrl;
+    }
+
+    @Override
+    public String getProxyServiceAuthKey() {
+        return __proxyServiceAuthKey;
     }
 
     @Override

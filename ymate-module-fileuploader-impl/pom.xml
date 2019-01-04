@@ -79,5 +79,10 @@
             <artifactId>ymate-module-fileuploader</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>net.ymate.module</groupId>
+            <artifactId>ymate-module-fileuploader-model</artifactId>
+            <version>${project.version}</version>
+        </dependency>
     </dependencies>
 </project>

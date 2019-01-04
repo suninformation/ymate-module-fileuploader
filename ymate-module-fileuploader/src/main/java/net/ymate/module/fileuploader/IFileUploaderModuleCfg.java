@@ -36,7 +36,7 @@ public interface IFileUploaderModuleCfg {
 
     String RESOURCES_BASE_URL = "resources_base_url";
 
-    String RESOURCES_ACCESS_PROCESSOR_CLASS = "resources_access_processor_class";
+    String RESOURCES_PROCESSOR_CLASS = "resources_processor_class";
 
     String RESOURCES_CACHE_TIMEOUT = "resources_cache_timeout";
 
@@ -45,6 +45,8 @@ public interface IFileUploaderModuleCfg {
     String IMAGE_FILE_PROCESSOR_CLASS = "image_file_processor_class";
 
     String PROXY_SERVICE_BASE_URL = "proxy_service_base_url";
+
+    String PROXY_SERVICE_AUTH_KEY = "proxy_service_auth_key";
 
     String ALLOW_CUSTOM_THUMB_SIZE = "allow_custom_thumb_size";
 
@@ -80,9 +82,9 @@ public interface IFileUploaderModuleCfg {
     String getResourcesBaseUrl();
 
     /**
-     * @return 资源访问处理器类, 用于验证被访问资源是否允许, 默认值为空(即不限制), 此类需实现net.ymate.module.fileuploader.IResourcesAccessProcessor接口
+     * @return 资源处理器类, 用于资源上传、匹配及验证被访问资源是否允许(非代理模式则此项必填), 此类需实现net.ymate.module.fileuploader.IResourcesProcessor接口
      */
-    IResourcesAccessProcessor getResourceAccessProcessor();
+    IResourcesProcessor getResourcesProcessor();
 
     /**
      * @return 资源文件缓存超时时间(秒), 取值范围: 0-31536000(=60 * 60 * 24 * 365), 取值小于或等于0则表示缓存一年, 默认值: 0
@@ -110,6 +112,11 @@ public interface IFileUploaderModuleCfg {
      * @return 代理服务基准URL路径(若开启代理模式则此项必填), 必须以'http://'或'https://'开始并以'/'结束, 如: http://www.ymate.net/proxies/, 默认值: 空
      */
     String getProxyServiceBaseUrl();
+
+    /**
+     * @return # 代理客户端与服务端之间通讯请求参数签名密钥, 默认值: ""
+     */
+    String getProxyServiceAuthKey();
 
     /**
      * @return 是否允许自定义缩略图尺寸, 默认值: false

@@ -40,6 +40,9 @@
     # 代理服务基准URL路径(若开启代理模式则此项必填), 必须以'http://'或'https://'开始并以'/'结束, 如: http://www.ymate.net/fileupload/, 默认值: 空
     ymp.configs.module.fileuploader.proxy_service_base_url=
     
+    # 代理客户端与服务端之间通讯请求参数签名密钥, 默认值: ""
+    ymp.configs.module.fileuploader.proxy_service_auth_key=
+    
     # 上传文件存储根路径, 默认值: ${root}/upload_files
     ymp.configs.module.fileuploader.file_storage_path=
     
@@ -52,8 +55,8 @@
     # 图片文件处理器接口实现, 若未提供则使用系统默认, 此类需实现net.ymate.module.fileuploader.IImageFileProcessor接口
     ymp.configs.module.fileuploader.image_file_processor_class=
     
-    # 资源访问处理器类, 用于处理被访问资源是否需要验证用户身份, 默认值为空(即不限制), 此类需实现net.ymate.module.fileuploader.IResourcesAccessProcessor接口
-    ymp.configs.module.fileuploader.resources_access_processor_class=
+    # 资源处理器类, 用于资源上传、匹配及验证被访问资源是否允许(非代理模式则此项必填), 此类需实现net.ymate.module.fileuploader.IResourcesProcessor接口
+    ymp.configs.module.fileuploader.resources_processor_class=
     
     # 是否允许自定义缩略图尺寸, 默认值: false
     ymp.configs.module.fileuploader.allow_custom_thumb_size=

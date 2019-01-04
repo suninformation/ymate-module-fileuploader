@@ -22,8 +22,6 @@ import net.ymate.framework.commons.IHttpResponse;
 import net.ymate.module.fileuploader.annotation.UploadResultProcessor;
 import net.ymate.module.fileuploader.handle.UploadResultProcessorHandler;
 import net.ymate.module.fileuploader.impl.DefaultFileUploaderModuleCfg;
-import net.ymate.module.fileuploader.model.Attachment;
-import net.ymate.module.fileuploader.repository.IAttachmentRepository;
 import net.ymate.platform.cache.Caches;
 import net.ymate.platform.cache.ICache;
 import net.ymate.platform.core.Version;
@@ -48,7 +46,7 @@ public class FileUploader implements IModule, IFileUploader {
 
     private static final Log _LOG = LogFactory.getLog(FileUploader.class);
 
-    public static final Version VERSION = new Version(1, 0, 0, FileUploader.class.getPackage().getImplementationVersion(), Version.VersionType.Alpha);
+    public static final Version VERSION = new Version(1, 0, 0, FileUploader.class.getPackage().getImplementationVersion(), Version.VersionType.Release);
 
     private static volatile IFileUploader __instance;
 
@@ -92,7 +90,10 @@ public class FileUploader implements IModule, IFileUploader {
             __matchFileHashCache = Caches.get().getCacheProvider().getCache(__moduleCfg.getCacheNamePrefix().concat("match_file_hash"));
             __resultProcessors = new HashMap<String, IUploadResultProcessor>();
             //
-            __moduleCfg.getFileStorageAdapter().init(this);
+            if (!__moduleCfg.isProxyMode()) {
+                __moduleCfg.getFileStorageAdapter().init(this);
+                __moduleCfg.getResourcesProcessor().init(this);
+            }
             //
             __inited = true;
         }
@@ -128,7 +129,7 @@ public class FileUploader implements IModule, IFileUploader {
         }
         // 非代理模式
         if (!__moduleCfg.isProxyMode()) {
-            return getOwner().getBean(IAttachmentRepository.class).uploadFile(fileWrapper);
+            return __moduleCfg.getResourcesProcessor().uploadFile(fileWrapper);
         } else {
             // 以下是代理模式采用透传
             IHttpResponse _result = HttpClientHelper.create().upload(__moduleCfg.getProxyServiceBaseUrl().concat("uploads/push?format=json"), "file", fileWrapper.toContentBody(), null);
@@ -152,7 +153,7 @@ public class FileUploader implements IModule, IFileUploader {
     public String match(String hash) throws Exception {
         // 非代理模式
         if (!__moduleCfg.isProxyMode()) {
-            return getOwner().getBean(IAttachmentRepository.class).matchHash(hash);
+            return __moduleCfg.getResourcesProcessor().matchHash(hash);
         } else {
             // 以下是代理模式采用透传
             Map<String, String> _params = new HashMap<String, String>();
@@ -195,11 +196,11 @@ public class FileUploader implements IModule, IFileUploader {
                 }
             }
             //
-            Attachment _resource;
+            UploadFileMeta _resource;
             if (resourceType.equals(IFileUploader.ResourceType.THUMB)) {
-                _resource = getOwner().getBean(IAttachmentRepository.class).getResource(IFileUploader.ResourceType.VIDEO, hash);
+                _resource = __moduleCfg.getResourcesProcessor().getResource(IFileUploader.ResourceType.VIDEO, hash);
             } else {
-                _resource = getOwner().getBean(IAttachmentRepository.class).getResource(resourceType, hash);
+                _resource = __moduleCfg.getResourcesProcessor().getResource(resourceType, hash);
             }
             if (_resource != null) {
                 File _resourceFile;
