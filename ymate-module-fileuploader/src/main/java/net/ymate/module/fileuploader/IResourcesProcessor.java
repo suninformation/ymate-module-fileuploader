@@ -64,4 +64,22 @@ public interface IResourcesProcessor {
      * @return 返回当前资源文件是否被禁止访问
      */
     boolean isAccessNotAllowed(UploadFileMeta fileMeta);
+
+    /**
+     * 用于自定义代理文件上传处理逻辑(若采用模块默认处理请在接口方法内抛出UnsupportedOperationException异常)
+     *
+     * @param fileWrapper 上传文件对象包装器
+     * @return 返回代理上传文件的元描述对象
+     * @throws Exception 可能产生的任何异常
+     */
+    UploadFileMeta proxyUploadFile(IFileWrapper fileWrapper) throws Exception;
+
+    /**
+     * 用于自定义代理文件哈希值比对逻辑(若采用模块默认处理请在接口方法内抛出UnsupportedOperationException异常)
+     *
+     * @param hash 文件哈希值
+     * @return 返回代理文件哈希值是否已存在, 若存在则返回该文件资源引用路径, 否则返回空
+     * @throws Exception 可能产生的任何异常
+     */
+    String proxyMatchHash(String hash) throws Exception;
 }

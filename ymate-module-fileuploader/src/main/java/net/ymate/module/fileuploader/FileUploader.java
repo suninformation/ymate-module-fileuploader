@@ -132,21 +132,26 @@ public class FileUploader implements IModule, IFileUploader {
             return __moduleCfg.getResourcesProcessor().uploadFile(fileWrapper);
         } else {
             // 以下是代理模式采用透传
-            IHttpResponse _result = HttpClientHelper.create().upload(__moduleCfg.getProxyServiceBaseUrl().concat("uploads/push?format=json"), "file", fileWrapper.toContentBody(), null);
-            if (_result != null) {
-                _LOG.info(_result.toString());
-                if (_result.getStatusCode() == 200) {
-                    JSONObject _jsonObj = JSON.parseObject(_result.getContent());
-                    if (_jsonObj.containsKey("ret")) {
-                        Integer _ret = _jsonObj.getInteger("ret");
-                        if (_ret != null && _ret == 0 && _jsonObj.containsKey("data")) {
-                            return _jsonObj.getObject("data", UploadFileMeta.class);
+            UploadFileMeta _returnValue = null;
+            try {
+                _returnValue = __moduleCfg.getResourcesProcessor().proxyUploadFile(fileWrapper);
+            } catch (UnsupportedOperationException e) {
+                IHttpResponse _result = HttpClientHelper.create().upload(__moduleCfg.getProxyServiceBaseUrl().concat("uploads/push?format=json"), "file", fileWrapper.toContentBody(), null);
+                if (_result != null) {
+                    _LOG.info(_result.toString());
+                    if (_result.getStatusCode() == 200) {
+                        JSONObject _jsonObj = JSON.parseObject(_result.getContent());
+                        if (_jsonObj.containsKey("ret")) {
+                            Integer _ret = _jsonObj.getInteger("ret");
+                            if (_ret != null && _ret == 0 && _jsonObj.containsKey("data")) {
+                                _returnValue = _jsonObj.getObject("data", UploadFileMeta.class);
+                            }
                         }
                     }
                 }
             }
+            return _returnValue;
         }
-        return null;
     }
 
     @Override
@@ -156,25 +161,30 @@ public class FileUploader implements IModule, IFileUploader {
             return __moduleCfg.getResourcesProcessor().matchHash(hash);
         } else {
             // 以下是代理模式采用透传
-            Map<String, String> _params = new HashMap<String, String>();
-            _params.put("hash", hash);
-            //
-            IHttpResponse _result = HttpClientHelper.create().post(__moduleCfg.getProxyServiceBaseUrl().concat("uploads/match?format=json"), _params);
-            if (_result != null) {
-                _LOG.info(_result.toString());
-                if (_result.getStatusCode() == 200) {
-                    JSONObject _jsonObj = JSON.parseObject(_result.getContent());
-                    if (_jsonObj.containsKey("ret")) {
-                        Integer _ret = _jsonObj.getInteger("ret");
-                        Boolean _matched = _jsonObj.getBoolean("matched");
-                        if (_ret != null && _ret == 0 && _matched != null && _matched && _jsonObj.containsKey("data")) {
-                            return _jsonObj.getString("data");
+            String _returnValue = null;
+            try {
+                _returnValue = __moduleCfg.getResourcesProcessor().proxyMatchHash(hash);
+            } catch (UnsupportedOperationException e) {
+                Map<String, String> _params = new HashMap<String, String>();
+                _params.put("hash", hash);
+                //
+                IHttpResponse _result = HttpClientHelper.create().post(__moduleCfg.getProxyServiceBaseUrl().concat("uploads/match?format=json"), _params);
+                if (_result != null) {
+                    _LOG.info(_result.toString());
+                    if (_result.getStatusCode() == 200) {
+                        JSONObject _jsonObj = JSON.parseObject(_result.getContent());
+                        if (_jsonObj.containsKey("ret")) {
+                            Integer _ret = _jsonObj.getInteger("ret");
+                            Boolean _matched = _jsonObj.getBoolean("matched");
+                            if (_ret != null && _ret == 0 && _matched != null && _matched && _jsonObj.containsKey("data")) {
+                                _returnValue = _jsonObj.getString("data");
+                            }
                         }
                     }
                 }
             }
+            return _returnValue;
         }
-        return null;
     }
 
     @Override

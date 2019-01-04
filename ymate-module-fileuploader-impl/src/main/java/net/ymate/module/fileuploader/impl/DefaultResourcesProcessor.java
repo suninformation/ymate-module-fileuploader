@@ -85,6 +85,10 @@ public class DefaultResourcesProcessor implements IResourcesProcessor {
         return type.name().toLowerCase() + "/" + hash;
     }
 
+    public IFileUploader getOwner() {
+        return __owner;
+    }
+
     @Override
     public void init(IFileUploader owner) throws Exception {
         __owner = owner;
@@ -209,5 +213,15 @@ public class DefaultResourcesProcessor implements IResourcesProcessor {
     @Override
     public boolean isAccessNotAllowed(UploadFileMeta fileMeta) {
         return false;
+    }
+
+    @Override
+    public UploadFileMeta proxyUploadFile(IFileWrapper fileWrapper) throws Exception {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public String proxyMatchHash(String hash) throws Exception {
+        throw new UnsupportedOperationException();
     }
 }
