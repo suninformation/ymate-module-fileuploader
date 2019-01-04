@@ -133,9 +133,15 @@ public class FileUploader implements IModule, IFileUploader {
         } else {
             // 以下是代理模式采用透传
             UploadFileMeta _returnValue = null;
-            try {
-                _returnValue = __moduleCfg.getResourcesProcessor().proxyUploadFile(fileWrapper);
-            } catch (UnsupportedOperationException e) {
+            boolean _useDefault = __moduleCfg.getResourcesProcessor() == null;
+            if (!_useDefault) {
+                try {
+                    _returnValue = __moduleCfg.getResourcesProcessor().proxyUploadFile(fileWrapper);
+                } catch (UnsupportedOperationException e) {
+                    _useDefault = true;
+                }
+            }
+            if (_useDefault) {
                 IHttpResponse _result = HttpClientHelper.create().upload(__moduleCfg.getProxyServiceBaseUrl().concat("uploads/push?format=json"), "file", fileWrapper.toContentBody(), null);
                 if (_result != null) {
                     _LOG.info(_result.toString());
@@ -162,9 +168,15 @@ public class FileUploader implements IModule, IFileUploader {
         } else {
             // 以下是代理模式采用透传
             String _returnValue = null;
-            try {
-                _returnValue = __moduleCfg.getResourcesProcessor().proxyMatchHash(hash);
-            } catch (UnsupportedOperationException e) {
+            boolean _useDefault = __moduleCfg.getResourcesProcessor() == null;
+            if (!_useDefault) {
+                try {
+                    _returnValue = __moduleCfg.getResourcesProcessor().proxyMatchHash(hash);
+                } catch (UnsupportedOperationException e) {
+                    _useDefault = true;
+                }
+            }
+            if (_useDefault) {
                 Map<String, String> _params = new HashMap<String, String>();
                 _params.put("hash", hash);
                 //
