@@ -198,7 +198,7 @@ public class DefaultResourcesProcessor implements IResourcesProcessor {
                 _fileMeta.setMimeType(_attach.getMimeType());
                 _fileMeta.setStatus(_attach.getStatus());
                 //
-                if (!isAccessNotAllowed(_fileMeta)) {
+                if (isAccessNotAllowed(_fileMeta)) {
                     throw new ResourcesAccessException(resourceType, hash);
                 }
                 //
