@@ -80,6 +80,51 @@
     >
     > - file: 上传文件流数据；
     > - type: 指定请求结果处理器，若未提供则采用默认，可选值：`fileupload`、`baidu` 
+    
+    响应：
+    
+    - 未指定`type`参数：
+    
+    ```json
+    {
+        "ret": 0,
+        "data": {
+            "filename": "37.jpg",
+            "hash": "5ce4f1f76048cdb19a492a76fd3b31b4",
+            "size": 2582,
+            "title": "37",
+            "type": "IMAGE",
+            "url": "http://localhost:8080/uploads/resources/image/5ce4f1f76048cdb19a492a76fd3b31b4"
+        }
+    }
+    ```
+    
+    - 指定`type=baidu`：
+    
+    ```json
+    {
+        "files": [
+            {
+                "size": 2582,
+                "name": "37.jpg",
+                "type": "image",
+                "hash": "5ce4f1f76048cdb19a492a76fd3b31b4",
+                "thumbnailUrl": "http://localhost:8080/uploads/resources/image/5ce4f1f76048cdb19a492a76fd3b31b4"
+            }
+        ]
+    }
+    ```
+    
+    - 指定`type=fileupload`：
+    
+    ```json
+    {
+        "size": 2582,
+        "state": "SUCCESS",
+        "title": "37",
+        "url": "http://localhost:8080/uploads/resources/image/5ce4f1f76048cdb19a492a76fd3b31b4"
+    }
+    ```
 
 - 文件指纹匹配，以POST方式请求URL地址：
 
