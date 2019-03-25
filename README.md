@@ -99,7 +99,7 @@
     }
     ```
     
-    - 指定`type=baidu`：
+    - 指定`type=fileupload`：
     
     ```json
     {
@@ -115,7 +115,7 @@
     }
     ```
     
-    - 指定`type=fileupload`：
+    - 指定`type=baidu`：
     
     ```json
     {
