@@ -15,8 +15,8 @@
 
     <dependency>
         <groupId>net.ymate.module</groupId>
-        <artifactId>ymate-module-fileuploader-impl</artifactId>
-        <version>1.1-SNAPSHOT</version>
+        <artifactId>ymate-module-fileuploader</artifactId>
+        <version>2.0.0</version>
     </dependency>
 
 ### 模块配置参数说明
@@ -33,6 +33,12 @@
     
     # 缓存数据超时时间, 可选参数, 数值必须大于等于0, 否则将采用默认
     ymp.configs.module.fileuploader.cache_timeout=
+    
+    # 默认控制器服务请求映射前缀(不允许'/'开始和结束), 默认值: ""
+    ymp.configs.module.fileuploader.service_prefix=
+    
+    # 是否注册默认控制器, 默认值: true
+    ymp.configs.module.fileuploader.service_enabled=
     
     # 是否开启代理模式, 默认值: false
     ymp.configs.module.fileuploader.proxy_mode=
@@ -52,8 +58,8 @@
     # 文件存储适配器接口实现, 若未提供则使用系统默认, 此类需实现net.ymate.module.fileuploader.IFileStorageAdapter接口
     ymp.configs.module.fileuploader.file_storage_adapter_class=
     
-    # 图片文件处理器接口实现, 若未提供则使用系统默认, 此类需实现net.ymate.module.fileuploader.IImageFileProcessor接口
-    ymp.configs.module.fileuploader.image_file_processor_class=
+    # 图片文件处理器接口实现, 若未提供则使用系统默认, 此类需实现net.ymate.module.fileuploader.IImageProcessor接口
+    ymp.configs.module.fileuploader.image_processor_class=
     
     # 资源处理器类, 用于资源上传、匹配及验证被访问资源是否允许(非代理模式则此项必填), 此类需实现net.ymate.module.fileuploader.IResourcesProcessor接口
     ymp.configs.module.fileuploader.resources_processor_class=

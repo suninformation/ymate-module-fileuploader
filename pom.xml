@@ -5,24 +5,18 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>net.ymate.module</groupId>
-    <artifactId>ymate-fileuploader-parent</artifactId>
-    <version>1</version>
-    <packaging>pom</packaging>
+    <artifactId>ymate-module-fileuploader</artifactId>
+    <version>2.0.0</version>
+    <packaging>jar</packaging>
 
-    <name>ymate-fileuploader-parent</name>
-    <url>http://www.ymate.net/</url>
-    <description>FileUploader parent</description>
-
-    <modules>
-        <module>ymate-module-fileuploader</module>
-        <module>ymate-module-fileuploader-impl</module>
-        <module>ymate-module-fileuploader-model</module>
-    </modules>
+    <name>ymate-module-fileuploader</name>
+    <url>https://www.ymate.net/</url>
+    <description>YMP FileUploader Module.</description>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <ymate.platform.version>2.0.6</ymate.platform.version>
-        <ymate.framework.version>2.0.6</ymate.framework.version>
+        <ymate.platform.version>2.1.0</ymate.platform.version>
+        <ymate.maven.plugin.version>1.1-SNAPSHOT</ymate.maven.plugin.version>
     </properties>
 
     <developers>
@@ -45,36 +39,11 @@
         <url>git@github.com:suninformation/ymate-module-fileuploader.git</url>
     </scm>
 
-    <build>
-        <plugins>
-            <!-- Compile -->
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <version>2.5.1</version>
-                <configuration>
-                    <source>1.6</source>
-                    <target>1.6</target>
-                </configuration>
-            </plugin>
-            <!-- Test -->
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-surefire-plugin</artifactId>
-                <version>2.17</version>
-                <configuration>
-                    <skipTests>true</skipTests>
-                </configuration>
-            </plugin>
-        </plugins>
-    </build>
-
     <profiles>
         <profile>
             <id>release</id>
             <build>
                 <plugins>
-                    <!-- Source -->
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-source-plugin</artifactId>
@@ -88,7 +57,6 @@
                             </execution>
                         </executions>
                     </plugin>
-                    <!-- Javadoc -->
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-javadoc-plugin</artifactId>
@@ -102,7 +70,6 @@
                             </execution>
                         </executions>
                     </plugin>
-                    <!-- GPG -->
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-gpg-plugin</artifactId>
@@ -131,73 +98,118 @@
         </profile>
     </profiles>
 
-    <dependencyManagement>
-        <dependencies>
-            <dependency>
-                <groupId>junit</groupId>
-                <artifactId>junit</artifactId>
-                <version>4.12</version>
-                <scope>test</scope>
-            </dependency>
-            <dependency>
-                <groupId>javax.servlet</groupId>
-                <artifactId>servlet-api</artifactId>
-                <version>2.5</version>
-                <scope>provided</scope>
-            </dependency>
-            <dependency>
-                <groupId>javax.servlet.jsp</groupId>
-                <artifactId>jsp-api</artifactId>
-                <version>2.2</version>
-                <scope>provided</scope>
-            </dependency>
-            <dependency>
-                <groupId>net.ymate.platform</groupId>
-                <artifactId>ymate-platform-cache</artifactId>
-                <version>${ymate.platform.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>net.ymate.platform</groupId>
-                <artifactId>ymate-platform-webmvc</artifactId>
-                <version>${ymate.platform.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>net.ymate.platform</groupId>
-                <artifactId>ymate-platform-persistence-jdbc</artifactId>
-                <version>${ymate.platform.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>net.ymate.framework</groupId>
-                <artifactId>ymate-framework-commons</artifactId>
-                <version>${ymate.framework.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>net.ymate.framework</groupId>
-                <artifactId>ymate-framework-core</artifactId>
-                <version>${ymate.framework.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.apache.httpcomponents</groupId>
-                <artifactId>httpmime</artifactId>
-                <version>4.5.5</version>
-                <exclusions>
-                    <exclusion>
-                        <groupId>commons-codec</groupId>
-                        <artifactId>commons-codec</artifactId>
-                    </exclusion>
-                </exclusions>
-            </dependency>
-            <dependency>
-                <groupId>com.jhlabs</groupId>
-                <artifactId>filters</artifactId>
-                <version>2.0.235-1</version>
-            </dependency>
-            <dependency>
-                <groupId>net.coobird</groupId>
-                <artifactId>thumbnailator</artifactId>
-                <version>0.4.8</version>
-            </dependency>
-        </dependencies>
-    </dependencyManagement>
+    <build>
+        <resources>
+            <resource>
+                <directory>src/main/resources</directory>
+                <excludes>
+                    <!--
+                    <exclude>**/ymp-*.properties</exclude>
+                    -->
+                    <exclude>**/ymp-conf_DEV.properties</exclude>
+                </excludes>
+                <filtering>false</filtering>
+            </resource>
+        </resources>
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-jar-plugin</artifactId>
+                    <configuration>
+                        <archive>
+                            <manifestSections>
+                                <manifestSection>
+                                    <name>net/ymate/module/fileuploader/</name>
+                                </manifestSection>
+                            </manifestSections>
+                            <manifestEntries>
+                                <Specification-Version>${project.version}</Specification-Version>
+                                <Implementation-Title>${project.name}</Implementation-Title>
+                                <Implementation-Version>${maven.build.timestamp}</Implementation-Version>
+                                <Implementation-Vendor>www.ymate.net</Implementation-Vendor>
+                            </manifestEntries>
+                        </archive>
+                    </configuration>
+                </plugin>
+            </plugins>
+        </pluginManagement>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>2.5.1</version>
+                <configuration>
+                    <source>1.8</source>
+                    <target>1.8</target>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>2.17</version>
+                <configuration>
+                    <skipTests>true</skipTests>
+                </configuration>
+            </plugin>
 
+            <plugin>
+                <groupId>net.ymate.maven.plugins</groupId>
+                <artifactId>ymate-maven-plugin</artifactId>
+                <version>${ymate.maven.plugin.version}</version>
+            </plugin>
+
+        </plugins>
+    </build>
+
+    <dependencies>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>4.12</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>javax.servlet</groupId>
+            <artifactId>javax.servlet-api</artifactId>
+            <version>3.0.1</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>javax.servlet.jsp</groupId>
+            <artifactId>jsp-api</artifactId>
+            <version>2.2</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.httpcomponents</groupId>
+            <artifactId>httpmime</artifactId>
+            <version>4.5.12</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>commons-codec</groupId>
+                    <artifactId>commons-codec</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>commons-logging</groupId>
+                    <artifactId>commons-logging</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>net.coobird</groupId>
+            <artifactId>thumbnailator</artifactId>
+            <version>0.4.11</version>
+        </dependency>
+        <dependency>
+            <groupId>com.jhlabs</groupId>
+            <artifactId>filters</artifactId>
+            <version>2.0.235-1</version>
+        </dependency>
+        <dependency>
+            <groupId>net.ymate.platform</groupId>
+            <artifactId>ymate-platform-webmvc</artifactId>
+            <version>${ymate.platform.version}</version>
+        </dependency>
+    </dependencies>
 </project>
