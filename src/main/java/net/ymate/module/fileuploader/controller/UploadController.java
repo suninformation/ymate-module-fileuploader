@@ -165,7 +165,8 @@ public class UploadController {
 
     private String doFixedResourceUrl(String resourceUrl) {
         if (StringUtils.isNotBlank(resourceUrl) && !StringUtils.startsWithAny(resourceUrl, new String[]{Type.Const.HTTP_PREFIX, Type.Const.HTTPS_PREFIX})) {
-            return WebUtils.buildUrl(WebContext.getRequest(), String.format("/uploads/resources/%s", resourceUrl), true);
+            String servicePrefix = WebUtils.fixUrl(fileUploader.getConfig().getServicePrefix(), true, false);
+            return WebUtils.buildUrl(WebContext.getRequest(), String.format("%s/uploads/resources/%s", servicePrefix, resourceUrl), true);
         }
         return resourceUrl;
     }
