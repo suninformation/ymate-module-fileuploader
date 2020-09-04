@@ -38,10 +38,10 @@ public interface IResourcesProcessor extends IInitialization<IFileUploader> {
      * 通过比较文件哈希值来判断文件是否已存在
      *
      * @param hash 文件哈希值
-     * @return 若存在则返回该文件资源引用路径, 否则返回空
+     * @return 若存在则返回该文件的元描述对象, 否则返回空
      * @throws Exception 可能产生的任何异常
      */
-    String matchHash(String hash) throws Exception;
+    UploadFileMeta matchHash(String hash) throws Exception;
 
     /**
      * 根据资源类型和文件哈希尝试加载符合的资源(验证资源是否允许访问)
@@ -74,8 +74,8 @@ public interface IResourcesProcessor extends IInitialization<IFileUploader> {
      * 用于自定义代理文件哈希值比对逻辑(若采用模块默认处理请在接口方法内抛出UnsupportedOperationException异常)
      *
      * @param hash 文件哈希值
-     * @return 返回代理文件哈希值是否已存在, 若存在则返回该文件资源引用路径, 否则返回空
+     * @return 返回代理文件哈希值是否已存在, 若存在则返回该文件的元描述对象, 否则返回空
      * @throws Exception 可能产生的任何异常
      */
-    String proxyMatchHash(String hash) throws Exception;
+    UploadFileMeta proxyMatchHash(String hash) throws Exception;
 }

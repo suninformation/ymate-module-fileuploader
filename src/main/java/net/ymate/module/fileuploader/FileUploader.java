@@ -237,14 +237,14 @@ public final class FileUploader implements IModule, IFileUploader {
     }
 
     @Override
-    public String match(String hash) throws Exception {
+    public UploadFileMeta match(String hash) throws Exception {
         IResourcesProcessor resourcesProcessor = config.getResourcesProcessor();
         // 非代理模式
         if (!config.isProxyMode()) {
             return resourcesProcessor.matchHash(hash);
         } else {
             // 以下是代理模式采用透传
-            String returnValue = null;
+            UploadFileMeta returnValue = null;
             boolean useDefault = resourcesProcessor == null;
             if (!useDefault) {
                 try {
@@ -266,7 +266,7 @@ public final class FileUploader implements IModule, IFileUploader {
                             IJsonObjectWrapper jsonObjectWrapper = jsonWrapper.getAsJsonObject();
                             if (jsonObjectWrapper.has(Type.Const.PARAM_RET)) {
                                 if (jsonObjectWrapper.getInt(Type.Const.PARAM_RET) == 0 && jsonObjectWrapper.getBoolean("matched") && jsonObjectWrapper.has(Type.Const.PARAM_DATA)) {
-                                    returnValue = jsonObjectWrapper.getString(Type.Const.PARAM_DATA);
+                                    returnValue = JsonWrapper.deserialize(jsonObjectWrapper.getString(Type.Const.PARAM_DATA), UploadFileMeta.class);
                                 }
                             }
                         }

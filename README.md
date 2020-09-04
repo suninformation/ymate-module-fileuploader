@@ -140,9 +140,22 @@
     >
     > - hash: 文件哈希值(MD5)，必选参数；
     
-    返回值：若匹配成功则返回该资源访问URL地址；
+    返回值：若匹配成功则返回该文件的描述信息；
     
-        {"ret":0, "matched":true, "data":"http://localhost:8080/uploads/resources/image/6146aaafbadb1f3ada6b12190e8c4771"}
+    ```json
+    {
+        "ret": 0,
+        "matched": true,
+        "data": {
+            "filename": "5ce4f1f76048cdb19a492a76fd3b31b4.jpg",
+            "hash": "5ce4f1f76048cdb19a492a76fd3b31b4",
+            "size": 2582,
+            "title": "5ce4f1f76048cdb19a492a76fd3b31b4",
+            "type": "IMAGE",
+            "url": "http://localhost:8080/uploads/resources/image/5ce4f1f76048cdb19a492a76fd3b31b4"
+        }
+    }
+    ```
 
 - 文件资源访问，以GET方式请求URL地址：
 

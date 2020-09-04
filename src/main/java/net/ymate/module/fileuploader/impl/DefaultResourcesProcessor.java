@@ -95,7 +95,7 @@ public class DefaultResourcesProcessor extends AbstractResourcesProcessor {
     }
 
     @Override
-    public String proxyMatchHash(String hash) throws Exception {
+    public UploadFileMeta proxyMatchHash(String hash) throws Exception {
         throw new UnsupportedOperationException();
     }
 }

@@ -28,8 +28,6 @@ import java.io.File;
  */
 public abstract class AbstractResourcesProcessor implements IResourcesProcessor {
 
-    protected static final String RESOURCE_CACHE_PREFIX = "resource_hash_";
-
     protected static final String FILE_META_CACHE_PREFIX = "file_meta_hash_";
 
     protected static final String URL_SEPARATOR = "/";
@@ -53,14 +51,6 @@ public abstract class AbstractResourcesProcessor implements IResourcesProcessor 
         return owner;
     }
 
-    protected String doGetResourceUrlFromCache(String hash) {
-        CacheElement cacheElement = (CacheElement) owner.getFileHashCache().get(RESOURCE_CACHE_PREFIX + hash);
-        if (cacheElement != null) {
-            return (String) cacheElement.getObject();
-        }
-        return null;
-    }
-
     protected UploadFileMeta doGetUploadFileMetaFromCache(String hash) {
         CacheElement cacheElement = (CacheElement) owner.getFileHashCache().get(FILE_META_CACHE_PREFIX + hash);
         if (cacheElement != null) {
@@ -69,8 +59,8 @@ public abstract class AbstractResourcesProcessor implements IResourcesProcessor 
         return null;
     }
 
-    protected void doPutElementToCache(String prefix, String hash, Object element) {
-        owner.getFileHashCache().put(prefix + hash, new CacheElement(element, owner.getConfig().getCacheTimeout()));
+    protected void doPutElementToCache(String hash, Object element) {
+        owner.getFileHashCache().put(FILE_META_CACHE_PREFIX + hash, new CacheElement(element, owner.getConfig().getCacheTimeout()));
     }
 
     /**
@@ -106,7 +96,7 @@ public abstract class AbstractResourcesProcessor implements IResourcesProcessor 
                 fileMeta = getOwner().getConfig().getFileStorageAdapter().writeFile(hash, fileWrapper);
                 if (fileMeta != null) {
                     fileMeta.setUrl(doBuildResourceUrl(hash, fileMeta.getType(), fileMeta.getSourcePath()));
-                    doPutElementToCache(FILE_META_CACHE_PREFIX, hash, fileMeta);
+                    doPutElementToCache(hash, fileMeta);
                     //
                     owner.getOwner().getEvents().fireEvent(new FileUploadEvent(owner, FileUploadEvent.EVENT.FILE_UPLOADED_CREATE).setEventSource(fileMeta));
                 }
@@ -116,21 +106,21 @@ public abstract class AbstractResourcesProcessor implements IResourcesProcessor 
     }
 
     @Override
-    public String matchHash(String hash) throws Exception {
-        String url = null;
+    public UploadFileMeta matchHash(String hash) throws Exception {
+        UploadFileMeta fileMeta = null;
         if (StringUtils.isNotBlank(hash)) {
-            url = doGetResourceUrlFromCache(hash);
-            if (StringUtils.isBlank(url)) {
-                UploadFileMeta fileMeta = doMatchHash(hash, null);
+            fileMeta = doGetUploadFileMetaFromCache(hash);
+            if (fileMeta == null) {
+                fileMeta = doMatchHash(hash, null);
                 if (fileMeta != null) {
-                    url = doBuildResourceUrl(hash, fileMeta.getType(), fileMeta.getSourcePath());
-                    doPutElementToCache(RESOURCE_CACHE_PREFIX, hash, url);
+                    fileMeta.setUrl(doBuildResourceUrl(hash, fileMeta.getType(), fileMeta.getSourcePath()));
+                    doPutElementToCache(hash, fileMeta);
                     //
                     owner.getOwner().getEvents().fireEvent(new FileUploadEvent(owner, FileUploadEvent.EVENT.FILE_MATCHED).setEventSource(fileMeta));
                 }
             }
         }
-        return url;
+        return fileMeta;
     }
 
     @Override
@@ -160,7 +150,7 @@ public abstract class AbstractResourcesProcessor implements IResourcesProcessor 
     }
 
     @Override
-    public String proxyMatchHash(String hash) throws Exception {
+    public UploadFileMeta proxyMatchHash(String hash) throws Exception {
         throw new UnsupportedOperationException();
     }
 }

@@ -81,10 +81,10 @@ public interface IFileUploader extends IInitialization<IApplication>, IDestroyab
      * 匹配文件哈希值
      *
      * @param hash 文件哈希值
-     * @return 若匹配成功则返回文件访问URL地址, 否则返回空
+     * @return 若匹配成功则返回文件的元描述对象, 否则返回空
      * @throws Exception 可能产生的任何异常
      */
-    String match(String hash) throws Exception;
+    UploadFileMeta match(String hash) throws Exception;
 
     /**
      * 加载资源

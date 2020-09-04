@@ -82,7 +82,7 @@ public class UploadController {
     @RequestMapping(value = "/push", method = {Type.HttpMethod.POST, Type.HttpMethod.OPTIONS})
     @FileUpload
     public IView doUpload(@VRequired @RequestParam IUploadFileWrapper file, @RequestParam String type) throws Exception {
-        if (StringUtils.isNotBlank(WebContext.getRequest().getHeader("Content-Range"))) {
+        if (StringUtils.isNotBlank(WebContext.getRequest().getHeader(Type.HttpHead.CONTENT_RANGE))) {
             // 暂不支持断点续传
             return HttpStatusView.BAD_REQUEST;
         }
@@ -115,9 +115,10 @@ public class UploadController {
     public IView doMatch(@VRequired
                          @VLength(eq = 32)
                          @RequestParam String hash) throws Exception {
-        String sourcePath = doFixedResourceUrl(fileUploader.match(hash));
-        if (StringUtils.isNotBlank(sourcePath)) {
-            return WebResult.succeed().attr("matched", true).data(sourcePath).withContentType().toJsonView();
+        UploadFileMeta fileMeta = fileUploader.match(hash);
+        if (fileMeta != null) {
+            fileMeta.setUrl(doFixedResourceUrl(fileMeta.getUrl()));
+            return WebResult.succeed().attr("matched", true).data(fileMeta).withContentType().toJsonView();
         }
         return WebResult.succeed().attr("matched", false).withContentType().toJsonView();
     }
