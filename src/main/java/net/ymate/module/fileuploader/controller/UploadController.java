@@ -98,7 +98,7 @@ public class UploadController {
             if (StringUtils.isNotBlank(fileMeta.getFilename())) {
                 fileMeta.setFilename(WebUtils.decodeUrl(fileMeta.getFilename()));
             }
-            return WebResult.succeed().data(fileMeta).withContentType().toJsonView();
+            return WebResult.builder().succeed().data(fileMeta).build().withContentType().toJsonView();
         } catch (ContentTypeNotAllowException e) {
             throw new FileUploadBase.InvalidContentTypeException(e.getMessage());
         }
@@ -118,9 +118,9 @@ public class UploadController {
         UploadFileMeta fileMeta = fileUploader.match(hash);
         if (fileMeta != null) {
             fileMeta.setUrl(doFixedResourceUrl(fileMeta.getUrl()));
-            return WebResult.succeed().attr("matched", true).data(fileMeta).withContentType().toJsonView();
+            return WebResult.builder().succeed().attr("matched", true).data(fileMeta).build().withContentType().toJsonView();
         }
-        return WebResult.succeed().attr("matched", false).withContentType().toJsonView();
+        return WebResult.builder().succeed().attr("matched", false).build().withContentType().toJsonView();
     }
 
     /**
