@@ -21,7 +21,6 @@ import net.ymate.platform.cache.Caches;
 import net.ymate.platform.cache.ICache;
 import net.ymate.platform.commons.http.HttpRequestBuilder;
 import net.ymate.platform.commons.http.IHttpResponse;
-import net.ymate.platform.commons.json.IJsonObjectWrapper;
 import net.ymate.platform.commons.json.JsonWrapper;
 import net.ymate.platform.commons.lang.BlurObject;
 import net.ymate.platform.commons.util.ClassUtils;
@@ -31,8 +30,9 @@ import net.ymate.platform.core.module.IModule;
 import net.ymate.platform.core.module.IModuleConfigurer;
 import net.ymate.platform.core.module.impl.DefaultModuleConfigurer;
 import net.ymate.platform.webmvc.IWebMvc;
+import net.ymate.platform.webmvc.IWebResult;
 import net.ymate.platform.webmvc.WebMVC;
-import net.ymate.platform.webmvc.base.Type;
+import net.ymate.platform.webmvc.util.WebResult;
 import net.ymate.platform.webmvc.util.WebUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
@@ -216,16 +216,17 @@ public final class FileUploader implements IModule, IFileUploader {
                 String serviceUrl = String.format("%s%s%s", config.getProxyServiceBaseUrl(), WebUtils.fixUrl(config.getServicePrefix(), false, true), "uploads/push?format=json");
                 IHttpResponse httpResponse = HttpRequestBuilder.create(serviceUrl).addBody("file", fileWrapper.toContentBody()).build().post();
                 if (httpResponse != null) {
-                    if (LOG.isInfoEnabled()) {
-                        LOG.info(httpResponse.toString());
+                    if (LOG.isDebugEnabled()) {
+                        LOG.debug(httpResponse.toString());
                     }
                     if (httpResponse.getStatusCode() == HttpServletResponse.SC_OK) {
                         JsonWrapper jsonWrapper = JsonWrapper.fromJson(httpResponse.getContent());
-                        if (jsonWrapper.isJsonObject()) {
-                            IJsonObjectWrapper jsonObjectWrapper = jsonWrapper.getAsJsonObject();
-                            if (jsonObjectWrapper.has(Type.Const.PARAM_RET)) {
-                                if (jsonObjectWrapper.getInt(Type.Const.PARAM_RET) == 0 && jsonObjectWrapper.getBoolean("matched") && jsonObjectWrapper.has("data")) {
-                                    returnValue = JsonWrapper.deserialize(jsonObjectWrapper.getString(Type.Const.PARAM_DATA), UploadFileMeta.class);
+                        if (jsonWrapper != null && jsonWrapper.isJsonObject()) {
+                            IWebResult<?> result = WebResult.builder().fromJson(jsonWrapper.getAsJsonObject()).build();
+                            if (result.isSuccess()) {
+                                JsonWrapper data = JsonWrapper.toJson(result.data());
+                                if (data != null && data.isJsonObject()) {
+                                    returnValue = JsonWrapper.deserialize(data.getAsJsonObject().toString(), UploadFileMeta.class);
                                 }
                             }
                         }
@@ -257,16 +258,17 @@ public final class FileUploader implements IModule, IFileUploader {
                 String serviceUrl = String.format("%s%s%s", config.getProxyServiceBaseUrl(), WebUtils.fixUrl(config.getServicePrefix(), false, true), "uploads/match?format=json");
                 IHttpResponse httpResponse = HttpRequestBuilder.create(serviceUrl).addParam("hash", hash).build().post();
                 if (httpResponse != null) {
-                    if (LOG.isInfoEnabled()) {
-                        LOG.info(httpResponse.toString());
+                    if (LOG.isDebugEnabled()) {
+                        LOG.debug(httpResponse.toString());
                     }
                     if (httpResponse.getStatusCode() == HttpServletResponse.SC_OK) {
                         JsonWrapper jsonWrapper = JsonWrapper.fromJson(httpResponse.getContent());
-                        if (jsonWrapper.isJsonObject()) {
-                            IJsonObjectWrapper jsonObjectWrapper = jsonWrapper.getAsJsonObject();
-                            if (jsonObjectWrapper.has(Type.Const.PARAM_RET)) {
-                                if (jsonObjectWrapper.getInt(Type.Const.PARAM_RET) == 0 && jsonObjectWrapper.getBoolean("matched") && jsonObjectWrapper.has(Type.Const.PARAM_DATA)) {
-                                    returnValue = JsonWrapper.deserialize(jsonObjectWrapper.getString(Type.Const.PARAM_DATA), UploadFileMeta.class);
+                        if (jsonWrapper != null && jsonWrapper.isJsonObject()) {
+                            IWebResult<?> result = WebResult.builder().fromJson(jsonWrapper.getAsJsonObject()).build();
+                            if (result.isSuccess() && BlurObject.bind(result.attr("matched")).toBooleanValue()) {
+                                JsonWrapper data = JsonWrapper.toJson(result.data());
+                                if (data != null && data.isJsonObject()) {
+                                    returnValue = JsonWrapper.deserialize(data.getAsJsonObject().toString(), UploadFileMeta.class);
                                 }
                             }
                         }
