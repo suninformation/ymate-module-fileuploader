@@ -83,19 +83,4 @@ public class DefaultResourcesProcessor extends AbstractResourcesProcessor {
         }
         return fileMeta;
     }
-
-    @Override
-    public boolean isAccessNotAllowed(UploadFileMeta fileMeta) {
-        return false;
-    }
-
-    @Override
-    public UploadFileMeta proxyUpload(IFileWrapper fileWrapper) throws Exception {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public UploadFileMeta proxyMatchHash(String hash) throws Exception {
-        throw new UnsupportedOperationException();
-    }
 }

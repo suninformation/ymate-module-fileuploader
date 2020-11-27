@@ -152,13 +152,13 @@
                     <skipTests>true</skipTests>
                 </configuration>
             </plugin>
-
+            <!--
             <plugin>
                 <groupId>net.ymate.maven.plugins</groupId>
                 <artifactId>ymate-maven-plugin</artifactId>
                 <version>${ymate.maven.plugin.version}</version>
             </plugin>
-
+            -->
         </plugins>
     </build>
 
@@ -166,7 +166,7 @@
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
-            <version>4.12</version>
+            <version>4.13.1</version>
             <scope>test</scope>
         </dependency>
         <dependency>

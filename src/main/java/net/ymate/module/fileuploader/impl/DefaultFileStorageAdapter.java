@@ -72,6 +72,7 @@ public class DefaultFileStorageAdapter implements IFileStorageAdapter {
         //
         createThumbFiles(targetFile);
         //
+        long lastModifyTime = file.getLastModifyTime();
         return UploadFileMeta.builder()
                 .hash(hash)
                 .filename(filename)
@@ -81,8 +82,8 @@ public class DefaultFileStorageAdapter implements IFileStorageAdapter {
                 .type(resourceType)
                 .status(0)
                 .sourcePath(sourcePath)
-                .createTime(file.getLastModifyTime())
-                .lastModifyTime(file.getLastModifyTime())
+                .createTime(lastModifyTime)
+                .lastModifyTime(lastModifyTime)
                 .build();
     }
 
