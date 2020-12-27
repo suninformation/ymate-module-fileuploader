@@ -86,8 +86,12 @@ public class UploadController {
             // 暂不支持断点续传
             return HttpStatusView.BAD_REQUEST;
         }
+        return doPush(new IFileWrapper.Default(file.getName(), file.getContentType(), file.getFile()), type);
+    }
+
+    private IView doPush(IFileWrapper fileWrapper, String type) throws Exception {
         try {
-            UploadFileMeta fileMeta = fileUploader.upload(new IFileWrapper.Default(file.getName(), file.getContentType(), file.getFile()));
+            UploadFileMeta fileMeta = fileUploader.upload(fileWrapper);
             fileMeta.setUrl(doFixedResourceUrl(fileMeta.getUrl()));
             if (StringUtils.isNotBlank(type)) {
                 IUploadResultProcessor resultProcessor = fileUploader.getUploadResultProcessor(type);

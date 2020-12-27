@@ -214,19 +214,20 @@ public final class FileUploader implements IModule, IFileUploader {
             }
             if (useDefault) {
                 String serviceUrl = String.format("%s%s%s", config.getProxyServiceBaseUrl(), WebUtils.fixUrl(config.getServicePrefix(), false, true), "uploads/push?format=json");
-                IHttpResponse httpResponse = HttpRequestBuilder.create(serviceUrl).addBody("file", fileWrapper.toContentBody()).build().post();
-                if (httpResponse != null) {
-                    if (LOG.isDebugEnabled()) {
-                        LOG.debug(httpResponse.toString());
-                    }
-                    if (httpResponse.getStatusCode() == HttpServletResponse.SC_OK) {
-                        JsonWrapper jsonWrapper = JsonWrapper.fromJson(httpResponse.getContent());
-                        if (jsonWrapper != null && jsonWrapper.isJsonObject()) {
-                            IWebResult<?> result = WebResult.builder().fromJson(jsonWrapper.getAsJsonObject()).build();
-                            if (result.isSuccess()) {
-                                JsonWrapper data = JsonWrapper.toJson(result.data());
-                                if (data != null && data.isJsonObject()) {
-                                    returnValue = JsonWrapper.deserialize(data.getAsJsonObject().toString(), UploadFileMeta.class);
+                try (IHttpResponse httpResponse = HttpRequestBuilder.create(serviceUrl).addBody("file", fileWrapper.toContentBody()).build().post()) {
+                    if (httpResponse != null) {
+                        if (LOG.isDebugEnabled()) {
+                            LOG.debug(httpResponse.toString());
+                        }
+                        if (httpResponse.getStatusCode() == HttpServletResponse.SC_OK) {
+                            JsonWrapper jsonWrapper = JsonWrapper.fromJson(httpResponse.getContent());
+                            if (jsonWrapper != null && jsonWrapper.isJsonObject()) {
+                                IWebResult<?> result = WebResult.builder().fromJson(jsonWrapper.getAsJsonObject()).build();
+                                if (result.isSuccess()) {
+                                    JsonWrapper data = JsonWrapper.toJson(result.data());
+                                    if (data != null && data.isJsonObject()) {
+                                        returnValue = JsonWrapper.deserialize(data.getAsJsonObject().toString(), UploadFileMeta.class);
+                                    }
                                 }
                             }
                         }
@@ -256,19 +257,20 @@ public final class FileUploader implements IModule, IFileUploader {
             }
             if (useDefault) {
                 String serviceUrl = String.format("%s%s%s", config.getProxyServiceBaseUrl(), WebUtils.fixUrl(config.getServicePrefix(), false, true), "uploads/match?format=json");
-                IHttpResponse httpResponse = HttpRequestBuilder.create(serviceUrl).addParam("hash", hash).build().post();
-                if (httpResponse != null) {
-                    if (LOG.isDebugEnabled()) {
-                        LOG.debug(httpResponse.toString());
-                    }
-                    if (httpResponse.getStatusCode() == HttpServletResponse.SC_OK) {
-                        JsonWrapper jsonWrapper = JsonWrapper.fromJson(httpResponse.getContent());
-                        if (jsonWrapper != null && jsonWrapper.isJsonObject()) {
-                            IWebResult<?> result = WebResult.builder().fromJson(jsonWrapper.getAsJsonObject()).build();
-                            if (result.isSuccess() && BlurObject.bind(result.attr("matched")).toBooleanValue()) {
-                                JsonWrapper data = JsonWrapper.toJson(result.data());
-                                if (data != null && data.isJsonObject()) {
-                                    returnValue = JsonWrapper.deserialize(data.getAsJsonObject().toString(), UploadFileMeta.class);
+                try (IHttpResponse httpResponse = HttpRequestBuilder.create(serviceUrl).addParam("hash", hash).build().post()) {
+                    if (httpResponse != null) {
+                        if (LOG.isDebugEnabled()) {
+                            LOG.debug(httpResponse.toString());
+                        }
+                        if (httpResponse.getStatusCode() == HttpServletResponse.SC_OK) {
+                            JsonWrapper jsonWrapper = JsonWrapper.fromJson(httpResponse.getContent());
+                            if (jsonWrapper != null && jsonWrapper.isJsonObject()) {
+                                IWebResult<?> result = WebResult.builder().fromJson(jsonWrapper.getAsJsonObject()).build();
+                                if (result.isSuccess() && BlurObject.bind(result.attr("matched")).toBooleanValue()) {
+                                    JsonWrapper data = JsonWrapper.toJson(result.data());
+                                    if (data != null && data.isJsonObject()) {
+                                        returnValue = JsonWrapper.deserialize(data.getAsJsonObject().toString(), UploadFileMeta.class);
+                                    }
                                 }
                             }
                         }
