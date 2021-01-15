@@ -25,6 +25,10 @@ import net.ymate.platform.core.support.IInitialization;
  */
 public interface IResourcesProcessor extends IInitialization<IFileUploader> {
 
+    String FILE_META_CACHE_PREFIX = "file_meta_hash_";
+
+    String URL_SEPARATOR = "/";
+
     /**
      * 分析并存储上传的文件
      *

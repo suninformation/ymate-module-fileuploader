@@ -191,19 +191,31 @@ public final class FileUploader implements IModule, IFileUploader {
         return fileHashCache;
     }
 
+    protected String doBuildResourceUrl(String hash, ResourceType type, String sourcePath) {
+        String resourcesBaseUrl = config.getResourcesBaseUrl();
+        if (resourcesBaseUrl != null) {
+            sourcePath = StringUtils.replaceChars(sourcePath, File.separatorChar, '/');
+            if (StringUtils.startsWith(sourcePath, IResourcesProcessor.URL_SEPARATOR)) {
+                sourcePath = StringUtils.substringAfter(sourcePath, IResourcesProcessor.URL_SEPARATOR);
+            }
+            return resourcesBaseUrl + sourcePath;
+        }
+        return String.format("%s/%s", type.name().toLowerCase(), hash);
+    }
+
     @Override
     public UploadFileMeta upload(IFileWrapper fileWrapper) throws Exception {
         // 检查上传的文件ContentType是否在允许列表中
         if (!config.getAllowContentTypes().isEmpty() && !config.getAllowContentTypes().contains(fileWrapper.getContentType())) {
             throw new ContentTypeNotAllowException("Upload file content type is not allowed.");
         }
+        UploadFileMeta returnValue = null;
         IResourcesProcessor resourcesProcessor = config.getResourcesProcessor();
         // 非代理模式
         if (!config.isProxyMode()) {
-            return resourcesProcessor.upload(fileWrapper);
+            returnValue = resourcesProcessor.upload(fileWrapper);
         } else {
             // 以下是代理模式采用透传
-            UploadFileMeta returnValue = null;
             boolean useDefault = resourcesProcessor == null;
             if (!useDefault) {
                 try {
@@ -234,19 +246,22 @@ public final class FileUploader implements IModule, IFileUploader {
                     }
                 }
             }
-            return returnValue;
         }
+        if (returnValue != null) {
+            returnValue.setUrl(doBuildResourceUrl(returnValue.getHash(), returnValue.getType(), returnValue.getSourcePath()));
+        }
+        return returnValue;
     }
 
     @Override
     public UploadFileMeta match(String hash) throws Exception {
+        UploadFileMeta returnValue = null;
         IResourcesProcessor resourcesProcessor = config.getResourcesProcessor();
         // 非代理模式
         if (!config.isProxyMode()) {
-            return resourcesProcessor.matchHash(hash);
+            returnValue = resourcesProcessor.matchHash(hash);
         } else {
             // 以下是代理模式采用透传
-            UploadFileMeta returnValue = null;
             boolean useDefault = resourcesProcessor == null;
             if (!useDefault) {
                 try {
@@ -277,8 +292,11 @@ public final class FileUploader implements IModule, IFileUploader {
                     }
                 }
             }
-            return returnValue;
         }
+        if (returnValue != null) {
+            returnValue.setUrl(doBuildResourceUrl(hash, returnValue.getType(), returnValue.getSourcePath()));
+        }
+        return returnValue;
     }
 
     @Override

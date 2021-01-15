@@ -20,17 +20,11 @@ import net.ymate.platform.commons.util.FileUtils;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang3.StringUtils;
 
-import java.io.File;
-
 /**
  * @author 刘镇 (suninformation@163.com) on 2020/08/10 16:51
  * @since 2.0.0
  */
 public abstract class AbstractResourcesProcessor implements IResourcesProcessor {
-
-    protected static final String FILE_META_CACHE_PREFIX = "file_meta_hash_";
-
-    protected static final String URL_SEPARATOR = "/";
 
     private IFileUploader owner;
 
@@ -73,18 +67,6 @@ public abstract class AbstractResourcesProcessor implements IResourcesProcessor 
      */
     protected abstract UploadFileMeta doMatchHash(String hash, ResourceType resourceType) throws Exception;
 
-    protected String doBuildResourceUrl(String hash, ResourceType type, String sourcePath) {
-        String resourcesBaseUrl = owner.getConfig().getResourcesBaseUrl();
-        if (resourcesBaseUrl != null) {
-            sourcePath = StringUtils.replaceChars(sourcePath, File.separatorChar, '/');
-            if (StringUtils.startsWith(sourcePath, URL_SEPARATOR)) {
-                sourcePath = StringUtils.substringAfter(sourcePath, URL_SEPARATOR);
-            }
-            return resourcesBaseUrl + sourcePath;
-        }
-        return String.format("%s/%s", type.name().toLowerCase(), hash);
-    }
-
     @Override
     public UploadFileMeta upload(final IFileWrapper fileWrapper) throws Exception {
         String hash = DigestUtils.md5Hex(fileWrapper.getInputStream());
@@ -95,7 +77,6 @@ public abstract class AbstractResourcesProcessor implements IResourcesProcessor 
             if (fileMeta == null) {
                 fileMeta = getOwner().getConfig().getFileStorageAdapter().writeFile(hash, fileWrapper);
                 if (fileMeta != null) {
-                    fileMeta.setUrl(doBuildResourceUrl(hash, fileMeta.getType(), fileMeta.getSourcePath()));
                     doPutElementToCache(hash, fileMeta);
                     //
                     owner.getOwner().getEvents().fireEvent(new FileUploadEvent(owner, FileUploadEvent.EVENT.FILE_UPLOADED_CREATE).setEventSource(fileMeta));
@@ -113,7 +94,6 @@ public abstract class AbstractResourcesProcessor implements IResourcesProcessor 
             if (fileMeta == null) {
                 fileMeta = doMatchHash(hash, null);
                 if (fileMeta != null) {
-                    fileMeta.setUrl(doBuildResourceUrl(hash, fileMeta.getType(), fileMeta.getSourcePath()));
                     doPutElementToCache(hash, fileMeta);
                     //
                     owner.getOwner().getEvents().fireEvent(new FileUploadEvent(owner, FileUploadEvent.EVENT.FILE_MATCHED).setEventSource(fileMeta));
