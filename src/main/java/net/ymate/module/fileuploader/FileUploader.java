@@ -232,14 +232,11 @@ public final class FileUploader implements IModule, IFileUploader {
                             LOG.debug(httpResponse.toString());
                         }
                         if (httpResponse.getStatusCode() == HttpServletResponse.SC_OK) {
-                            JsonWrapper jsonWrapper = JsonWrapper.fromJson(httpResponse.getContent());
-                            if (jsonWrapper != null && jsonWrapper.isJsonObject()) {
-                                IWebResult<?> result = WebResult.builder().fromJson(jsonWrapper.getAsJsonObject()).build();
-                                if (result.isSuccess()) {
-                                    JsonWrapper data = JsonWrapper.toJson(result.data());
-                                    if (data != null && data.isJsonObject()) {
-                                        returnValue = JsonWrapper.deserialize(data.getAsJsonObject().toString(), UploadFileMeta.class);
-                                    }
+                            IWebResult<?> result = WebResult.builder().fromJson(httpResponse.getContent()).build();
+                            if (result.isSuccess()) {
+                                JsonWrapper data = JsonWrapper.toJson(result.data());
+                                if (data != null && data.isJsonObject()) {
+                                    returnValue = JsonWrapper.deserialize(data.getAsJsonObject().toString(), UploadFileMeta.class);
                                 }
                             }
                         }
@@ -278,14 +275,11 @@ public final class FileUploader implements IModule, IFileUploader {
                             LOG.debug(httpResponse.toString());
                         }
                         if (httpResponse.getStatusCode() == HttpServletResponse.SC_OK) {
-                            JsonWrapper jsonWrapper = JsonWrapper.fromJson(httpResponse.getContent());
-                            if (jsonWrapper != null && jsonWrapper.isJsonObject()) {
-                                IWebResult<?> result = WebResult.builder().fromJson(jsonWrapper.getAsJsonObject()).build();
-                                if (result.isSuccess() && BlurObject.bind(result.attr("matched")).toBooleanValue()) {
-                                    JsonWrapper data = JsonWrapper.toJson(result.data());
-                                    if (data != null && data.isJsonObject()) {
-                                        returnValue = JsonWrapper.deserialize(data.getAsJsonObject().toString(), UploadFileMeta.class);
-                                    }
+                            IWebResult<?> result = WebResult.builder().fromJson(httpResponse.getContent()).build();
+                            if (result.isSuccess() && BlurObject.bind(result.attr("matched")).toBooleanValue()) {
+                                JsonWrapper data = JsonWrapper.toJson(result.data());
+                                if (data != null && data.isJsonObject()) {
+                                    returnValue = JsonWrapper.deserialize(data.getAsJsonObject().toString(), UploadFileMeta.class);
                                 }
                             }
                         }
