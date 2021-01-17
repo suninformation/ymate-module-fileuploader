@@ -24,7 +24,9 @@ import net.ymate.platform.commons.http.IHttpResponse;
 import net.ymate.platform.commons.json.JsonWrapper;
 import net.ymate.platform.commons.lang.BlurObject;
 import net.ymate.platform.commons.util.ClassUtils;
+import net.ymate.platform.commons.util.ParamUtils;
 import net.ymate.platform.commons.util.RuntimeUtils;
+import net.ymate.platform.commons.util.UUIDUtils;
 import net.ymate.platform.core.*;
 import net.ymate.platform.core.module.IModule;
 import net.ymate.platform.core.module.IModuleConfigurer;
@@ -214,6 +216,9 @@ public final class FileUploader implements IModule, IFileUploader {
         // 非代理模式
         if (!config.isProxyMode()) {
             returnValue = resourcesProcessor.upload(fileWrapper);
+            if (returnValue != null) {
+                returnValue.setUrl(doBuildResourceUrl(returnValue.getHash(), returnValue.getType(), returnValue.getSourcePath()));
+            }
         } else {
             // 以下是代理模式采用透传
             boolean useDefault = resourcesProcessor == null;
@@ -225,8 +230,16 @@ public final class FileUploader implements IModule, IFileUploader {
                 }
             }
             if (useDefault) {
-                String serviceUrl = String.format("%s%s%s", config.getProxyServiceBaseUrl(), WebUtils.fixUrl(config.getServicePrefix(), false, true), "uploads/push?format=json");
-                try (IHttpResponse httpResponse = HttpRequestBuilder.create(serviceUrl).addBody("file", fileWrapper.toContentBody()).build().post()) {
+                String serviceUrl = String.format("%s%s%s", config.getProxyServiceBaseUrl(), WebUtils.fixUrl(config.getServicePrefix(), false, true), "uploads/push");
+                Map<String, String> requestParams = new HashMap<>(3);
+                requestParams.put("format", "json");
+                if (StringUtils.isNotBlank(config.getProxyServiceAuthKey())) {
+                    requestParams.put("nonce", UUIDUtils.randomStr(16, false));
+                    requestParams.put("sign", ParamUtils.createSignature(requestParams, false, true, config.getProxyServiceAuthKey()));
+                }
+                try (IHttpResponse httpResponse = HttpRequestBuilder.create(serviceUrl)
+                        .addParams(requestParams)
+                        .addBody("file", fileWrapper.toContentBody()).build().post()) {
                     if (httpResponse != null) {
                         if (LOG.isDebugEnabled()) {
                             LOG.debug(httpResponse.toString());
@@ -244,9 +257,6 @@ public final class FileUploader implements IModule, IFileUploader {
                 }
             }
         }
-        if (returnValue != null) {
-            returnValue.setUrl(doBuildResourceUrl(returnValue.getHash(), returnValue.getType(), returnValue.getSourcePath()));
-        }
         return returnValue;
     }
 
@@ -257,6 +267,9 @@ public final class FileUploader implements IModule, IFileUploader {
         // 非代理模式
         if (!config.isProxyMode()) {
             returnValue = resourcesProcessor.matchHash(hash);
+            if (returnValue != null) {
+                returnValue.setUrl(doBuildResourceUrl(hash, returnValue.getType(), returnValue.getSourcePath()));
+            }
         } else {
             // 以下是代理模式采用透传
             boolean useDefault = resourcesProcessor == null;
@@ -268,8 +281,15 @@ public final class FileUploader implements IModule, IFileUploader {
                 }
             }
             if (useDefault) {
-                String serviceUrl = String.format("%s%s%s", config.getProxyServiceBaseUrl(), WebUtils.fixUrl(config.getServicePrefix(), false, true), "uploads/match?format=json");
-                try (IHttpResponse httpResponse = HttpRequestBuilder.create(serviceUrl).addParam("hash", hash).build().post()) {
+                String serviceUrl = String.format("%s%s%s", config.getProxyServiceBaseUrl(), WebUtils.fixUrl(config.getServicePrefix(), false, true), "uploads/match");
+                Map<String, String> requestParams = new HashMap<>(3);
+                requestParams.put("format", "json");
+                requestParams.put("hash", hash);
+                if (StringUtils.isNotBlank(config.getProxyServiceAuthKey())) {
+                    requestParams.put("nonce", UUIDUtils.randomStr(16, false));
+                    requestParams.put("sign", ParamUtils.createSignature(requestParams, false, true, config.getProxyServiceAuthKey()));
+                }
+                try (IHttpResponse httpResponse = HttpRequestBuilder.create(serviceUrl).addParams(requestParams).build().post()) {
                     if (httpResponse != null) {
                         if (LOG.isDebugEnabled()) {
                             LOG.debug(httpResponse.toString());
@@ -286,9 +306,6 @@ public final class FileUploader implements IModule, IFileUploader {
                     }
                 }
             }
-        }
-        if (returnValue != null) {
-            returnValue.setUrl(doBuildResourceUrl(hash, returnValue.getType(), returnValue.getSourcePath()));
         }
         return returnValue;
     }

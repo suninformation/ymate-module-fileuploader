@@ -16,14 +16,12 @@
 package net.ymate.module.fileuploader.controller;
 
 import net.ymate.module.fileuploader.*;
+import net.ymate.module.fileuploader.support.FileUploadSignatureValidator;
 import net.ymate.platform.core.beans.annotation.Inject;
 import net.ymate.platform.validation.validate.VLength;
 import net.ymate.platform.validation.validate.VRequired;
 import net.ymate.platform.webmvc.IUploadFileWrapper;
-import net.ymate.platform.webmvc.annotation.FileUpload;
-import net.ymate.platform.webmvc.annotation.PathVariable;
-import net.ymate.platform.webmvc.annotation.RequestMapping;
-import net.ymate.platform.webmvc.annotation.RequestParam;
+import net.ymate.platform.webmvc.annotation.*;
 import net.ymate.platform.webmvc.base.Type;
 import net.ymate.platform.webmvc.context.WebContext;
 import net.ymate.platform.webmvc.util.WebResult;
@@ -48,6 +46,7 @@ import java.util.concurrent.TimeUnit;
  * @since 1.0
  */
 @RequestMapping("/uploads")
+@SignatureValidate(nonceName = "nonce", validatorClass = FileUploadSignatureValidator.class)
 public class UploadController {
 
     @Inject
@@ -139,6 +138,7 @@ public class UploadController {
      * @throws Exception 可能产生的任何异常
      */
     @RequestMapping("/resources/{type}/{hash}")
+    @SignatureValidate(disabled = true)
     public IView doResources(@PathVariable String type,
                              @PathVariable String hash) throws Exception {
         IView returnView = null;
