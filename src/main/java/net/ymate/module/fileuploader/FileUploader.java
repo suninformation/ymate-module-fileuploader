@@ -19,6 +19,8 @@ import net.ymate.module.fileuploader.controller.UploadController;
 import net.ymate.module.fileuploader.impl.DefaultFileUploaderConfig;
 import net.ymate.platform.cache.Caches;
 import net.ymate.platform.cache.ICache;
+import net.ymate.platform.commons.exception.ServiceException;
+import net.ymate.platform.commons.exception.ServiceStatusException;
 import net.ymate.platform.commons.http.HttpRequestBuilder;
 import net.ymate.platform.commons.http.IHttpResponse;
 import net.ymate.platform.commons.json.JsonWrapper;
@@ -241,9 +243,6 @@ public final class FileUploader implements IModule, IFileUploader {
                         .addParams(requestParams)
                         .addBody("file", fileWrapper.toContentBody()).build().post()) {
                     if (httpResponse != null) {
-                        if (LOG.isDebugEnabled()) {
-                            LOG.debug(httpResponse.toString());
-                        }
                         if (httpResponse.getStatusCode() == HttpServletResponse.SC_OK) {
                             IWebResult<?> result = WebResult.builder().fromJson(httpResponse.getContent()).build();
                             if (result.isSuccess()) {
@@ -251,7 +250,11 @@ public final class FileUploader implements IModule, IFileUploader {
                                 if (data != null && data.isJsonObject()) {
                                     returnValue = JsonWrapper.deserialize(data.getAsJsonObject().toString(), UploadFileMeta.class);
                                 }
+                            } else {
+                                throw new ServiceException(BlurObject.bind(result.code()).toIntValue(), result.msg());
                             }
+                        } else {
+                            throw new ServiceStatusException(httpResponse.getStatusCode(), httpResponse.getContent());
                         }
                     }
                 }
@@ -291,17 +294,20 @@ public final class FileUploader implements IModule, IFileUploader {
                 }
                 try (IHttpResponse httpResponse = HttpRequestBuilder.create(serviceUrl).addParams(requestParams).build().post()) {
                     if (httpResponse != null) {
-                        if (LOG.isDebugEnabled()) {
-                            LOG.debug(httpResponse.toString());
-                        }
                         if (httpResponse.getStatusCode() == HttpServletResponse.SC_OK) {
                             IWebResult<?> result = WebResult.builder().fromJson(httpResponse.getContent()).build();
-                            if (result.isSuccess() && BlurObject.bind(result.attr("matched")).toBooleanValue()) {
-                                JsonWrapper data = JsonWrapper.toJson(result.data());
-                                if (data != null && data.isJsonObject()) {
-                                    returnValue = JsonWrapper.deserialize(data.getAsJsonObject().toString(), UploadFileMeta.class);
+                            if (result.isSuccess()) {
+                                if (BlurObject.bind(result.attr("matched")).toBooleanValue()) {
+                                    JsonWrapper data = JsonWrapper.toJson(result.data());
+                                    if (data != null && data.isJsonObject()) {
+                                        returnValue = JsonWrapper.deserialize(data.getAsJsonObject().toString(), UploadFileMeta.class);
+                                    }
                                 }
+                            } else {
+                                throw new ServiceException(BlurObject.bind(result.code()).toIntValue(), result.msg());
                             }
+                        } else {
+                            throw new ServiceStatusException(httpResponse.getStatusCode(), httpResponse.getContent());
                         }
                     }
                 }
