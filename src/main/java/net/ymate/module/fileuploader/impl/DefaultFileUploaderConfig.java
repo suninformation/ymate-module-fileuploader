@@ -17,17 +17,13 @@ package net.ymate.module.fileuploader.impl;
 
 import net.ymate.module.fileuploader.*;
 import net.ymate.module.fileuploader.annotation.FileUploaderConf;
-import net.ymate.platform.commons.util.RuntimeUtils;
 import net.ymate.platform.core.configuration.IConfigReader;
 import net.ymate.platform.core.module.IModuleConfigurer;
 import net.ymate.platform.webmvc.base.Type;
 import net.ymate.platform.webmvc.util.WebUtils;
 import org.apache.commons.lang.NullArgumentException;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -38,8 +34,6 @@ import java.util.List;
  * @version 1.0
  */
 public final class DefaultFileUploaderConfig implements IFileUploaderConfig {
-
-    private static final Log LOG = LogFactory.getLog(DefaultFileUploaderConfig.class);
 
     private boolean enabled = true;
 
@@ -53,7 +47,9 @@ public final class DefaultFileUploaderConfig implements IFileUploaderConfig {
 
     private boolean serviceEnabled;
 
-    private File fileStoragePath;
+    private String fileStoragePath;
+
+    private String thumbStoragePath;
 
     private String resourcesBaseUrl;
 
@@ -107,7 +103,8 @@ public final class DefaultFileUploaderConfig implements IFileUploaderConfig {
         //
         enabled = configReader.getBoolean(ENABLED, confAnn == null || confAnn.enabled());
         proxyMode = configReader.getBoolean(PROXY_MODE, confAnn != null && confAnn.proxyMode());
-        fileStoragePath = new File(RuntimeUtils.replaceEnvVariable(StringUtils.defaultIfBlank(configReader.getString(FILE_STORAGE_PATH, confAnn == null ? null : confAnn.fileStoragePath()), "${root}/upload_files")));
+        fileStoragePath = configReader.getString(FILE_STORAGE_PATH, confAnn == null ? null : confAnn.fileStoragePath());
+        thumbStoragePath = configReader.getString(THUMB_STORAGE_PATH, confAnn == null ? null : confAnn.thumbStoragePath());
         nodeId = StringUtils.defaultIfBlank(configReader.getString(NODE_ID, confAnn != null ? confAnn.nodeId() : null), Type.Const.UNKNOWN);
         cacheNamePrefix = configReader.getString(CACHE_NAME_PREFIX, confAnn != null ? confAnn.cacheNamePrefix() : null);
         cacheTimeout = configReader.getInt(CACHE_TIMEOUT, confAnn != null ? confAnn.cacheTimeout() : 0);
@@ -155,17 +152,6 @@ public final class DefaultFileUploaderConfig implements IFileUploaderConfig {
         if (!initialized) {
             if (enabled) {
                 if (!proxyMode) {
-                    if (!fileStoragePath.exists()) {
-                        if (fileStoragePath.mkdirs()) {
-                            if (LOG.isInfoEnabled()) {
-                                LOG.info(String.format("Successfully created file_storage_path directory: %s", fileStoragePath.getPath()));
-                            }
-                        } else {
-                            throw new IllegalArgumentException(String.format("Failed to create file_storage_path directory: %s", fileStoragePath.getPath()));
-                        }
-                    } else if (!fileStoragePath.isAbsolute() || !fileStoragePath.isDirectory() || !fileStoragePath.canRead() || !fileStoragePath.canWrite()) {
-                        throw new IllegalArgumentException(String.format("Parameter file_storage_path value [%s] is invalid or is not a directory", fileStoragePath.getPath()));
-                    }
                     if (resourcesProcessor == null) {
                         resourcesProcessor = new DefaultResourcesProcessor();
                     }
@@ -268,13 +254,24 @@ public final class DefaultFileUploaderConfig implements IFileUploaderConfig {
     }
 
     @Override
-    public File getFileStoragePath() {
+    public String getFileStoragePath() {
         return fileStoragePath;
     }
 
-    public void setFileStoragePath(File fileStoragePath) {
+    public void setFileStoragePath(String fileStoragePath) {
         if (!initialized) {
             this.fileStoragePath = fileStoragePath;
+        }
+    }
+
+    @Override
+    public String getThumbStoragePath() {
+        return thumbStoragePath;
+    }
+
+    public void setThumbStoragePath(String thumbStoragePath) {
+        if (!initialized) {
+            this.thumbStoragePath = thumbStoragePath;
         }
     }
 
@@ -461,8 +458,13 @@ public final class DefaultFileUploaderConfig implements IFileUploaderConfig {
             return this;
         }
 
-        public Builder fileStoragePath(File fileStoragePath) {
+        public Builder fileStoragePath(String fileStoragePath) {
             config.setFileStoragePath(fileStoragePath);
+            return this;
+        }
+
+        public Builder thumbStoragePath(String thumbStoragePath) {
+            config.setThumbStoragePath(thumbStoragePath);
             return this;
         }
 

@@ -211,5 +211,11 @@
             <artifactId>ymate-platform-webmvc</artifactId>
             <version>${ymate.platform.version}</version>
         </dependency>
+        <dependency>
+            <groupId>net.ymate.platform</groupId>
+            <artifactId>ymate-platform-persistence-mongodb</artifactId>
+            <version>${ymate.platform.version}</version>
+            <scope>provided</scope>
+        </dependency>
     </dependencies>
 </project>

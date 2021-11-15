@@ -62,9 +62,14 @@ public @interface FileUploaderConf {
     boolean serviceEnabled() default true;
 
     /**
-     * @return 上传文件存储根路径, 默认值: ${root}/upload_files
+     * @return 上传文件存储根路径（根据存储适配器接口实现决定其值具体含义）, 默认存储适配器取值: ${root}/upload_files
      */
     String fileStoragePath() default StringUtils.EMPTY;
+
+    /**
+     * @return 缩略图文件存储根路径（根据存储适配器接口实现决定其值具体含义）, 默认存储适配器取值与上传文件存储根路径值相同
+     */
+    String thumbStoragePath() default StringUtils.EMPTY;
 
     /**
      * @return 静态资源引用基准URL路径, 必须以'http://'或'https://'开始并以'/'结束, 如: http://www.ymate.net/static/resources/, 默认值: 空(即不使用静态资源引用路径)
@@ -112,7 +117,7 @@ public @interface FileUploaderConf {
     boolean allowCustomThumbSize() default false;
 
     /**
-     * @return 缩略图尺寸列表, 该尺寸列表在允许自定义缩略图尺寸时生效, 若列表不为空则自定义尺寸不能超过此范围, 如: 600_480、1024_0 (0表示等比缩放, 不支持0*0), 默认值: 空
+     * @return 缩略图尺寸列表, 该尺寸列表在允许自定义缩略图尺寸时生效, 若列表不为空则自定义尺寸不能超过此范围, 如: 600_480、1024_0 (0表示等比缩放, 不支持0_0), 默认值: 空
      */
     String[] thumbSizeList() default {};
 

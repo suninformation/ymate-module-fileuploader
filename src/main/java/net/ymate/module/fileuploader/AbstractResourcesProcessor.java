@@ -32,8 +32,19 @@ public abstract class AbstractResourcesProcessor implements IResourcesProcessor 
 
     @Override
     public void initialize(IFileUploader owner) throws Exception {
-        this.owner = owner;
-        this.initialized = true;
+        if (!initialized) {
+            this.owner = owner;
+            doInitialize();
+            this.initialized = true;
+        }
+    }
+
+    /**
+     * 执行初始化
+     *
+     * @throws Exception 初始过程中产生的任何异常
+     */
+    protected void doInitialize() throws Exception {
     }
 
     @Override

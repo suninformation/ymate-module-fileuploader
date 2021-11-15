@@ -18,6 +18,7 @@ package net.ymate.module.fileuploader.controller;
 import net.ymate.module.fileuploader.*;
 import net.ymate.module.fileuploader.support.FileUploadSignatureValidator;
 import net.ymate.platform.core.beans.annotation.Inject;
+import net.ymate.platform.validation.validate.VDataRange;
 import net.ymate.platform.validation.validate.VLength;
 import net.ymate.platform.validation.validate.VRequired;
 import net.ymate.platform.webmvc.IUploadFileWrapper;
@@ -55,19 +56,19 @@ public class UploadController {
     @RequestMapping(value = "/chunk/push", method = {Type.HttpMethod.POST, Type.HttpMethod.OPTIONS})
     @FileUpload
     public IView doChunkUpload() {
-        return null;
+        return HttpStatusView.BAD_REQUEST;
     }
 
     @RequestMapping(value = "/chunk/match", method = {Type.HttpMethod.POST, Type.HttpMethod.OPTIONS})
     @FileUpload
     public IView doChunkMatch() {
-        return null;
+        return HttpStatusView.BAD_REQUEST;
     }
 
     @RequestMapping(value = "/chunk/merge", method = {Type.HttpMethod.POST, Type.HttpMethod.OPTIONS})
     @FileUpload
     public IView doChunkMerge() {
-        return null;
+        return HttpStatusView.BAD_REQUEST;
     }
 
     /**
@@ -80,7 +81,7 @@ public class UploadController {
      */
     @RequestMapping(value = "/push", method = {Type.HttpMethod.POST, Type.HttpMethod.OPTIONS})
     @FileUpload
-    public IView doUpload(@VRequired @RequestParam IUploadFileWrapper file, @RequestParam String type) throws Exception {
+    public IView doUpload(@VRequired @RequestParam IUploadFileWrapper file, @RequestParam @VLength(max = 32) String type) throws Exception {
         if (StringUtils.isNotBlank(WebContext.getRequest().getHeader(Type.HttpHead.CONTENT_RANGE))) {
             // 暂不支持断点续传
             return HttpStatusView.BAD_REQUEST;
@@ -128,7 +129,7 @@ public class UploadController {
 
     /**
      * 文件资源访问<br>
-     * 若请求的URL中包含参数'?attach'则强制下载<br>
+     * 若请求的URL中包含参数'?attach'则强制下载并支持通过?attach=FILE_NAME方式自定义文件名称<br>
      * 若请求的资源为未知或APPLICATION类型资源默认全部强制下载<br>
      * 若请求THUMB资源时将判断目标资源类型返回相应的缩略图(排除未知/TEXT/APPLICATION类型)<br>
      *
@@ -139,8 +140,8 @@ public class UploadController {
      */
     @RequestMapping("/resources/{type}/{hash}")
     @SignatureValidate(disabled = true)
-    public IView doResources(@PathVariable String type,
-                             @PathVariable String hash) throws Exception {
+    public IView doResources(@PathVariable @VDataRange({"IMAGE", "VIDEO", "AUDIO", "TEXT", "APPLICATION", "THUMB"}) String type,
+                             @PathVariable @VLength(max = 50) String hash) throws Exception {
         IView returnView = null;
         // 判断资源类型
         try {
@@ -155,7 +156,11 @@ public class UploadController {
                     // 判断是否采用强制下载
                     boolean hasAttach = WebContext.getContext().getParameters().containsKey("attach");
                     if (hasAttach) {
-                        binaryView.useAttachment(StringUtils.substringAfterLast(fileWrapper.getFileName(), File.separator));
+                        String attachName = WebContext.getRequest().getParameter("attach");
+                        if (!doCheckAttachName(attachName)) {
+                            attachName = StringUtils.substringAfterLast(fileWrapper.getFileName(), File.separator);
+                        }
+                        binaryView.useAttachment(attachName);
                     }
                     returnView = binaryView;
                 }
@@ -166,6 +171,10 @@ public class UploadController {
             returnView = View.httpStatusView(HttpServletResponse.SC_UNAUTHORIZED, e.getMessage());
         }
         return returnView == null ? HttpStatusView.NOT_FOUND : returnView;
+    }
+
+    private boolean doCheckAttachName(String attachName) {
+        return attachName != null && attachName.length() <= 255 && attachName.matches("[^\\s\\\\/:*?\"<>|](\\x20|[^\\s\\\\/:*?\"<>|])*[^\\s\\\\/:*?\"<>|.]$");
     }
 
     private String doFixedResourceUrl(String resourceUrl) {

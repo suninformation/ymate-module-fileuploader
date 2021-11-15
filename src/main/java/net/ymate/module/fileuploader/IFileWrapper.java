@@ -30,13 +30,21 @@ public interface IFileWrapper extends net.ymate.platform.commons.http.IFileWrapp
         private final long lastModifyTime;
 
         public Default(String fileName, String contentType, File sourceFile) {
+            this(fileName, contentType, sourceFile, sourceFile.lastModified());
+        }
+
+        public Default(String fileName, String contentType, File sourceFile, long lastModifyTime) {
             super(fileName, contentType, sourceFile);
-            this.lastModifyTime = sourceFile.lastModified();
+            this.lastModifyTime = lastModifyTime;
         }
 
         public Default(String contentType, File sourceFile) {
+            this(contentType, sourceFile, sourceFile.lastModified());
+        }
+
+        public Default(String contentType, File sourceFile, long lastModifyTime) {
             super(sourceFile.getName(), contentType, sourceFile);
-            this.lastModifyTime = sourceFile.lastModified();
+            this.lastModifyTime = lastModifyTime;
         }
 
         public Default(File sourceFile) {

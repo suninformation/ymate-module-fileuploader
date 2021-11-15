@@ -18,7 +18,6 @@ package net.ymate.module.fileuploader;
 import net.ymate.platform.core.beans.annotation.Ignored;
 import net.ymate.platform.core.support.IInitialization;
 
-import java.io.File;
 import java.util.List;
 
 /**
@@ -29,6 +28,8 @@ import java.util.List;
 @Ignored
 public interface IFileUploaderConfig extends IInitialization<IFileUploader> {
 
+    String DEFAULT_STORAGE_PATH = "${root}/upload_files";
+
     int ONE_YEAR_SECONDS = 60 * 60 * 24 * 365;
 
     String ENABLED = "enabled";
@@ -36,6 +37,8 @@ public interface IFileUploaderConfig extends IInitialization<IFileUploader> {
     String PROXY_MODE = "proxy_mode";
 
     String FILE_STORAGE_PATH = "file_storage_path";
+
+    String THUMB_STORAGE_PATH = "thumb_storage_path";
 
     String NODE_ID = "node_id";
 
@@ -112,11 +115,18 @@ public interface IFileUploaderConfig extends IInitialization<IFileUploader> {
     boolean isServiceEnabled();
 
     /**
-     * 上传文件存储根路径, 默认值: ${root}/upload_files
+     * 上传文件存储根路径（根据存储适配器接口实现决定其值具体含义）, 默认存储适配器取值: ${root}/upload_files
      *
      * @return 返回上传文件存储根路径
      */
-    File getFileStoragePath();
+    String getFileStoragePath();
+
+    /**
+     * 缩略图文件存储根路径（根据存储适配器接口实现决定其值具体含义）, 默认存储适配器取值与上传文件存储根路径值相同
+     *
+     * @return 返回缩略图文件存储根路径
+     */
+    String getThumbStoragePath();
 
     /**
      * 静态资源引用基准URL路径, 必须以'http://'或'https://'开始并以'/'结束, 如: http://www.ymate.net/static/resources/, 默认值: 空(即不使用静态资源引用路径)

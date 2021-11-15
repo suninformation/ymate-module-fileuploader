@@ -66,11 +66,4 @@ public interface IFileStorageAdapter extends IInitialization<IFileUploader> {
      * @return 返回资源文件缩略图, 若不存在则返回null
      */
     File readThumb(ResourceType resourceType, String hash, String sourcePath, int width, int height);
-
-    /**
-     * 生成缩略图
-     *
-     * @param sourceFile 资源文件
-     */
-    void createThumbFiles(File sourceFile);
 }

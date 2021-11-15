@@ -15,6 +15,8 @@
  */
 package net.ymate.module.fileuploader;
 
+import org.apache.commons.lang.NullArgumentException;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.commons.lang3.builder.ToStringBuilder;
@@ -28,6 +30,24 @@ import java.io.Serializable;
  * @since 1.0
  */
 public class UploadFileMeta implements Serializable {
+
+    public static String buildSourcePath(ResourceType resourceType, String hash) {
+        return buildSourcePath(resourceType, hash, null);
+    }
+
+    public static String buildSourcePath(ResourceType resourceType, String hash, String filename) {
+        if (resourceType == null) {
+            throw new NullArgumentException("resourceType");
+        }
+        if (StringUtils.isBlank(hash)) {
+            throw new NullArgumentException("hash");
+        }
+        String sourcePath = String.format("%s/%s/%s", resourceType.name().toLowerCase(), StringUtils.substring(hash, 0, 2), StringUtils.substring(hash, 2, 4));
+        if (StringUtils.isBlank(filename)) {
+            return sourcePath;
+        }
+        return String.format("%s/%s", sourcePath, filename);
+    }
 
     /**
      * 文件哈希值

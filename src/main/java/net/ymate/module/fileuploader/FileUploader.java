@@ -195,7 +195,7 @@ public final class FileUploader implements IModule, IFileUploader {
         return fileHashCache;
     }
 
-    protected String doBuildResourceUrl(String hash, ResourceType type, String sourcePath) {
+    private String doBuildResourceUrl(String hash, ResourceType type, String sourcePath) {
         String resourcesBaseUrl = config.getResourcesBaseUrl();
         if (resourcesBaseUrl != null) {
             sourcePath = StringUtils.replaceChars(sourcePath, File.separatorChar, '/');
@@ -353,7 +353,7 @@ public final class FileUploader implements IModule, IFileUploader {
                         resourceFile = storageAdapter.readFile(hash, resourceFileMeta.getSourcePath());
                 }
                 if (resourceFile != null && resourceFile.exists()) {
-                    return new IFileWrapper.Default(resourceFileMeta.getSourcePath(), resourceFileMeta.getMimeType(), resourceFile);
+                    return new IFileWrapper.Default(resourceFileMeta.getSourcePath(), resourceFileMeta.getMimeType(), resourceFile, resourceFileMeta.getLastModifyTime());
                 }
             }
         }
