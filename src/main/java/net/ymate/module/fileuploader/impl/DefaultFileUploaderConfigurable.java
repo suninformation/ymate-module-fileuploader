@@ -118,6 +118,11 @@ public final class DefaultFileUploaderConfigurable extends DefaultModuleConfigur
             return this;
         }
 
+        public Builder thumbCreateOnUploaded(boolean thumbCreateOnUploaded) {
+            configurable.addConfig(IFileUploaderConfig.THUMB_CREATE_ON_UPLOADED, String.valueOf(thumbCreateOnUploaded));
+            return this;
+        }
+
         public Builder allowCustomThumbSize(boolean allowCustomThumbSize) {
             configurable.addConfig(IFileUploaderConfig.ALLOW_CUSTOM_THUMB_SIZE, String.valueOf(allowCustomThumbSize));
             return this;

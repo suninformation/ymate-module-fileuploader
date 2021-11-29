@@ -64,6 +64,8 @@ public interface IFileUploaderConfig extends IInitialization<IFileUploader> {
 
     String PROXY_SERVICE_AUTH_KEY = "proxy_service_auth_key";
 
+    String THUMB_CREATE_ON_UPLOADED = "thumb_create_on_uploaded";
+
     String ALLOW_CUSTOM_THUMB_SIZE = "allow_custom_thumb_size";
 
     String THUMB_SIZE_LIST = "thumb_size_list";
@@ -183,6 +185,13 @@ public interface IFileUploaderConfig extends IInitialization<IFileUploader> {
      * @return 返回代理客户端与服务端之间通讯请求参数签名密钥
      */
     String getProxyServiceAuthKey();
+
+    /**
+     * 文件上传成功后是否自动执行生成图片或视频截图缩略图, 默认值: false
+     *
+     * @return 返回是否自动执行生成缩略图
+     */
+    boolean isThumbCreateOnUploaded();
 
     /**
      * 是否允许自定义缩略图尺寸, 默认值: false

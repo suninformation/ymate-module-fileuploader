@@ -29,12 +29,12 @@ public interface IImageProcessor {
     /**
      * 重置图片大小
      *
-     * @param source 源文件对象
-     * @param dist 重置后文件对象
-     * @param width 重置宽度
-     * @param height 重置高度
+     * @param source  源文件对象
+     * @param dist    重置后文件对象
+     * @param width   重置宽度
+     * @param height  重置高度
      * @param quality 图片质量
-     * @param format 文件格式
+     * @param format  文件格式
      * @return 返回true表示处理成功
      */
     boolean resize(BufferedImage source, File dist, int width, int height, float quality, String format);

@@ -25,10 +25,7 @@ import net.ymate.platform.commons.http.HttpRequestBuilder;
 import net.ymate.platform.commons.http.IHttpResponse;
 import net.ymate.platform.commons.json.JsonWrapper;
 import net.ymate.platform.commons.lang.BlurObject;
-import net.ymate.platform.commons.util.ClassUtils;
-import net.ymate.platform.commons.util.ParamUtils;
-import net.ymate.platform.commons.util.RuntimeUtils;
-import net.ymate.platform.commons.util.UUIDUtils;
+import net.ymate.platform.commons.util.*;
 import net.ymate.platform.core.*;
 import net.ymate.platform.core.module.IModule;
 import net.ymate.platform.core.module.IModuleConfigurer;
@@ -344,15 +341,17 @@ public final class FileUploader implements IModule, IFileUploader {
             }
             if (resourceFileMeta != null) {
                 File resourceFile;
-                switch (resourceType) {
-                    case IMAGE:
-                    case THUMB:
-                        resourceFile = storageAdapter.readThumb(resourceType, resourceFileMeta.getHash(), resourceFileMeta.getSourcePath(), width, height);
-                        break;
-                    default:
-                        resourceFile = storageAdapter.readFile(hash, resourceFileMeta.getSourcePath());
+                if (resourceType.isImage()) {
+                    resourceFile = storageAdapter.readThumb(resourceType, resourceFileMeta.getHash(), resourceFileMeta.getSourcePath(), width, height);
+                } else {
+                    resourceFile = storageAdapter.readFile(hash, resourceFileMeta.getSourcePath());
                 }
                 if (resourceFile != null && resourceFile.exists()) {
+                    if (resourceType == ResourceType.THUMB) {
+                        resourceFileMeta.setSourcePath(UploadFileMeta.buildSourcePath(ResourceType.THUMB, hash, resourceFile.getName()));
+                        resourceFileMeta.setType(ResourceType.THUMB);
+                        resourceFileMeta.setMimeType(MimeTypeUtils.getFileMimeType(FileUtils.getExtName(resourceFile.getName())));
+                    }
                     return new IFileWrapper.Default(resourceFileMeta.getSourcePath(), resourceFileMeta.getMimeType(), resourceFile, resourceFileMeta.getLastModifyTime());
                 }
             }

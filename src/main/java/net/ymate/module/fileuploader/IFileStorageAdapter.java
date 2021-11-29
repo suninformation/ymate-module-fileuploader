@@ -47,6 +47,17 @@ public interface IFileStorageAdapter extends IInitialization<IFileUploader> {
     UploadFileMeta writeFile(String hash, IFileWrapper file) throws Exception;
 
     /**
+     * 针对图片和视频截图文件自动修复补全等操作
+     *
+     * @param resourceType     资源类型
+     * @param targetFile       目标文件
+     * @param sourcePathDir    源文件存储路径
+     * @param thumbStoragePath 缩略图存储路径
+     * @param hash             文件哈希值
+     */
+    void doAfterWriteFile(ResourceType resourceType, File targetFile, String sourcePathDir, String thumbStoragePath, String hash);
+
+    /**
      * 读取文件
      *
      * @param hash       文件哈希值
@@ -66,4 +77,11 @@ public interface IFileStorageAdapter extends IInitialization<IFileUploader> {
      * @return 返回资源文件缩略图, 若不存在则返回null
      */
     File readThumb(ResourceType resourceType, String hash, String sourcePath, int width, int height);
+
+    /**
+     * 获取缩略图文件存储路径
+     *
+     * @return 返回缩略存储路径文件对象
+     */
+    File getThumbStoragePath();
 }

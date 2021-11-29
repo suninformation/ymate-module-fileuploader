@@ -22,9 +22,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import javax.imageio.ImageIO;
 import java.io.File;
-import java.io.IOException;
 
 /**
  * @author 刘镇 (suninformation@163.com) on 2016/03/31 01:50
@@ -68,7 +66,7 @@ public class DefaultFileStorageAdapter extends AbstractFileStorageAdapter {
         }
         file.writeTo(targetFile);
         //
-        doCreateThumbFilesIfNeed(targetFile, new File(thumbStoragePath, sourcePathDir));
+        doAfterWriteFile(resourceType, targetFile, sourcePathDir, thumbStoragePath.getPath(), hash);
         //
         long lastModifyTime = file.getLastModifyTime();
         return UploadFileMeta.builder()
@@ -91,25 +89,7 @@ public class DefaultFileStorageAdapter extends AbstractFileStorageAdapter {
     }
 
     @Override
-    public File readThumb(ResourceType resourceType, String hash, String sourcePath, int width, int height) {
-        File targetFile = new File(fileStoragePath, sourcePath);
-        if (targetFile.exists()) {
-            if (width > 0 || height > 0) {
-                try {
-                    File thumbFile = doGetThumbFileIfExists(thumbStoragePath, targetFile.getName(), width, height);
-                    if (thumbFile == null) {
-                        thumbFile = doCreateThumbFileIfNeed(ImageIO.read(targetFile), targetFile.getName(), new File(thumbStoragePath, sourcePath).getParentFile(), width, height);
-                    }
-                    if (thumbFile != null) {
-                        return thumbFile;
-                    }
-                } catch (IOException e) {
-                    if (LOG.isWarnEnabled()) {
-                        LOG.warn(StringUtils.EMPTY, RuntimeUtils.unwrapThrow(e));
-                    }
-                }
-            }
-        }
-        return targetFile;
+    public File getThumbStoragePath() {
+        return thumbStoragePath;
     }
 }

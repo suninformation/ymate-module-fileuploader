@@ -30,9 +30,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.bson.Document;
 
-import javax.imageio.ImageIO;
 import java.io.File;
-import java.io.IOException;
 import java.io.InputStream;
 
 /**
@@ -108,7 +106,8 @@ public class MongoGridFileStorageAdapter extends AbstractFileStorageAdapter {
                 try (InputStream inputStream = file.getInputStream()) {
                     fsFile = session.find(session.upload(filename, inputStream, new GridFSUploadOptions().metadata(metadata)));
                 }
-                doCreateThumbFilesIfNeed(file.getFile(), new File(thumbStoragePath, sourcePathDir));
+                //
+                doAfterWriteFile(resourceType, file.getFile(), sourcePathDir, thumbStoragePath.getPath(), hash);
             }
             return buildUploadFileMeta(hash, fsFile);
         });
@@ -141,26 +140,7 @@ public class MongoGridFileStorageAdapter extends AbstractFileStorageAdapter {
     }
 
     @Override
-    public File readThumb(ResourceType resourceType, String hash, String sourcePath, int width, int height) {
-        File sourcePathFile = new File(sourcePath);
-        File thumbFile = doGetThumbFileIfExists(thumbStoragePath, sourcePathFile.getName(), width, height);
-        if (thumbFile == null) {
-            try {
-                File targetFile = readFile(hash, sourcePath);
-                if (targetFile != null) {
-                    if (width > 0 || height > 0) {
-                        thumbFile = doCreateThumbFileIfNeed(ImageIO.read(targetFile), sourcePathFile.getName(), new File(thumbStoragePath, sourcePath).getParentFile(), width, height);
-                    }
-                }
-                if (thumbFile == null) {
-                    thumbFile = targetFile;
-                }
-            } catch (IOException e) {
-                if (LOG.isWarnEnabled()) {
-                    LOG.warn(StringUtils.EMPTY, RuntimeUtils.unwrapThrow(e));
-                }
-            }
-        }
-        return thumbFile;
+    public File getThumbStoragePath() {
+        return thumbStoragePath;
     }
 }

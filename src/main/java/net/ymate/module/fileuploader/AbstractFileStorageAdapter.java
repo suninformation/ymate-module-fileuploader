@@ -15,6 +15,7 @@
  */
 package net.ymate.module.fileuploader;
 
+import net.ymate.platform.commons.FFmpegHelper;
 import net.ymate.platform.commons.lang.BlurObject;
 import net.ymate.platform.commons.util.FileUtils;
 import net.ymate.platform.commons.util.RuntimeUtils;
@@ -31,7 +32,7 @@ import java.util.List;
 
 /**
  * @author 刘镇 (suninformation@163.com) on 2021/11/14 11:41 上午
- * @since 1.0.0
+ * @since 2.0.0
  */
 public abstract class AbstractFileStorageAdapter implements IFileStorageAdapter {
 
@@ -66,6 +67,48 @@ public abstract class AbstractFileStorageAdapter implements IFileStorageAdapter 
         return initialized;
     }
 
+    @Override
+    public void doAfterWriteFile(ResourceType resourceType, File targetFile, String sourcePathDir, String thumbStoragePath, String hash) {
+        if (targetFile != null && targetFile.exists()) {
+            // 若为视频文件类型则创建截图
+            if (resourceType.equals(ResourceType.VIDEO)) {
+                targetFile = doCreateVideoScreenshot(resourceType, targetFile, thumbStoragePath, hash);
+                resourceType = ResourceType.THUMB;
+            }
+            // 尝试生成限定的缩略图文件
+            if (targetFile != null && targetFile.exists() && getOwner().getConfig().isThumbCreateOnUploaded()) {
+                if (resourceType.equals(ResourceType.IMAGE)) {
+                    doCreateThumbFilesIfNeed(targetFile, new File(thumbStoragePath, sourcePathDir));
+                } else if (resourceType.equals(ResourceType.THUMB)) {
+                    doCreateThumbFilesIfNeed(targetFile, targetFile.getParentFile());
+                }
+            }
+        }
+    }
+
+    @Override
+    public File readThumb(ResourceType resourceType, String hash, String sourcePath, int width, int height) {
+        File targetFile = null;
+        File thumbStoragePath = getThumbStoragePath();
+        if (resourceType.equals(ResourceType.IMAGE)) {
+            File thumbFile = new File(thumbStoragePath, sourcePath);
+            thumbFile = doGetThumbFileIfExists(thumbFile.getParentFile(), thumbFile.getName(), width, height);
+            if (thumbFile != null) {
+                return thumbFile;
+            }
+            targetFile = readFile(hash, sourcePath);
+        } else if (resourceType.equals(ResourceType.THUMB)) {
+            String screenshotSourcePath = doBuildVideoScreenshotFileName(hash);
+            targetFile = new File(thumbStoragePath, screenshotSourcePath);
+            if (!targetFile.exists()) {
+                // 重新生成视频截图
+                targetFile = doCreateVideoScreenshot(ResourceType.VIDEO, readFile(hash, sourcePath), thumbStoragePath.getPath(), hash);
+            }
+            sourcePath = screenshotSourcePath;
+        }
+        return doReadThumb(resourceType, targetFile, thumbStoragePath.getPath(), sourcePath, width, height);
+    }
+
     protected File doCheckAndFixStorageDir(String storageName, File storageDir, boolean needWriteLog) {
         if (!storageDir.exists()) {
             if (storageDir.mkdirs()) {
@@ -92,6 +135,66 @@ public abstract class AbstractFileStorageAdapter implements IFileStorageAdapter 
                 }
             }
         }
+    }
+
+    protected File doReadThumb(ResourceType resourceType, File targetFile, String thumbStoragePath, String sourcePath, int width, int height) {
+        if (targetFile != null && targetFile.exists() && resourceType.isImage()) {
+            if (width > 0 || height > 0) {
+                try {
+                    File thumbFile = doGetThumbFileIfExists(new File(thumbStoragePath, sourcePath).getParentFile(), targetFile.getName(), width, height);
+                    if (thumbFile == null) {
+                        thumbFile = doCreateThumbFileIfNeed(ImageIO.read(targetFile), targetFile.getName(), new File(thumbStoragePath, sourcePath).getParentFile(), width, height);
+                    }
+                    if (thumbFile != null) {
+                        return thumbFile;
+                    }
+                } catch (IOException e) {
+                    if (LOG.isWarnEnabled()) {
+                        LOG.warn(StringUtils.EMPTY, RuntimeUtils.unwrapThrow(e));
+                    }
+                }
+            }
+        }
+        return targetFile;
+    }
+
+    protected File doGetThumbFileIfExists(File distDir, String fileName, int width, int height) {
+        String extension = StringUtils.trimToNull(FileUtils.getExtName(fileName));
+        if (StringUtils.isNotBlank(extension)) {
+            File thumbFile = new File(distDir, doBuildThumbFileName(fileName, extension, width, height));
+            if (thumbFile.exists()) {
+                return thumbFile;
+            }
+        }
+        return null;
+    }
+
+    protected String doBuildVideoScreenshotFileName(String hash) {
+        return String.format("%s/%s.jpeg", UploadFileMeta.buildSourcePath(ResourceType.THUMB, hash), hash);
+    }
+
+    protected File doCreateVideoScreenshot(ResourceType resourceType, File targetFile, String thumbStoragePath, String hash) {
+        if (targetFile != null && resourceType.equals(ResourceType.VIDEO)) {
+            File screenshotFile = new File(thumbStoragePath, doBuildVideoScreenshotFileName(hash));
+            if (!screenshotFile.exists()) {
+                doCheckAndFixStorageDir("screenshotFileDir", screenshotFile.getParentFile(), false);
+                // 通过FFmpeg工具提取视频文件指定帧截图
+                FFmpegHelper ffmpeghelper = FFmpegHelper.create().bind(targetFile);
+                FFmpegHelper.MediaInfo mediaInfo = ffmpeghelper.getMediaInfo();
+                if (mediaInfo != null) {
+                    // 截取视频中间时间的一张图片
+                    int time = Math.min(1, mediaInfo.getTime() / 2);
+                    screenshotFile = ffmpeghelper.screenshotVideo(time, 0, 0, 0, screenshotFile);
+                    if (screenshotFile != null && LOG.isInfoEnabled()) {
+                        LOG.info(String.format("Successfully created screenshot: %s", screenshotFile.getPath()));
+                    }
+                    return screenshotFile;
+                }
+            } else {
+                return screenshotFile;
+            }
+        }
+        return null;
     }
 
     protected void doCreateThumbFiles(BufferedImage bufferedImage, String fileName, String distDir, List<String> thumbSizeList) {
@@ -140,13 +243,13 @@ public abstract class AbstractFileStorageAdapter implements IFileStorageAdapter 
             // 调整宽高参数, 超出原图将不处理
             int resizeWidth = Math.min(width, originWidth);
             int resizeHeight = Math.min(height, originHeight);
-            if (resizeWidth == 0 && resizeHeight == 0) {
+            if (resizeWidth <= 0 && resizeHeight <= 0) {
                 resizeWidth = originWidth;
                 resizeHeight = originHeight;
-            } else if (resizeWidth == 0) {
-                resizeWidth = Long.valueOf(Math.round(originWidth * height * 1.0 / originHeight)).intValue();
-            } else if (resizeHeight == 0) {
-                resizeHeight = Long.valueOf(Math.round(originHeight * width * 1.0 / originWidth)).intValue();
+            } else if (resizeWidth <= 0) {
+                resizeWidth = -1;
+            } else if (resizeHeight <= 0) {
+                resizeHeight = -1;
             }
             //
             String extension = StringUtils.trimToNull(FileUtils.getExtName(fileName));
@@ -177,16 +280,5 @@ public abstract class AbstractFileStorageAdapter implements IFileStorageAdapter 
             quality = 0.72f;
         }
         return quality;
-    }
-
-    protected File doGetThumbFileIfExists(File distDir, String fileName, int width, int height) {
-        String extension = StringUtils.trimToNull(FileUtils.getExtName(fileName));
-        if (StringUtils.isNotBlank(extension)) {
-            File thumbFile = new File(distDir, doBuildThumbFileName(fileName, extension, width, height));
-            if (thumbFile.exists()) {
-                return thumbFile;
-            }
-        }
-        return null;
     }
 }

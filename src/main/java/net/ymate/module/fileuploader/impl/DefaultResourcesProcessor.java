@@ -41,7 +41,7 @@ public class DefaultResourcesProcessor extends AbstractResourcesProcessor {
 
     private UploadFileMeta doReadFileMeta(String hash, String sourcePath, ResourceType resourceType) throws Exception {
         UploadFileMeta fileMeta = null;
-        File metaFile = new File(getOwner().getConfig().getFileStoragePath(), String.format("%s/%s/.META-INF/%s", resourceType.name().toLowerCase(), sourcePath, hash));
+        File metaFile = new File(getOwner().getConfig().getFileStoragePath(), String.format("%s/%s/.metadata/%s", resourceType.name().toLowerCase(), sourcePath, hash));
         if (metaFile.exists()) {
             fileMeta = JsonWrapper.deserialize(IOUtils.toString(new FileInputStream(metaFile), StandardCharsets.UTF_8), UploadFileMeta.class);
         }
@@ -72,7 +72,7 @@ public class DefaultResourcesProcessor extends AbstractResourcesProcessor {
         UploadFileMeta fileMeta = super.upload(fileWrapper);
         if (fileMeta != null) {
             String sourcePath = StringUtils.substringBeforeLast(fileMeta.getSourcePath(), URL_SEPARATOR);
-            File metaFile = new File(getOwner().getConfig().getFileStoragePath(), String.format("%s/.META-INF/%s", sourcePath, fileMeta.getHash()));
+            File metaFile = new File(getOwner().getConfig().getFileStoragePath(), String.format("%s/.metadata/%s", sourcePath, fileMeta.getHash()));
             if (metaFile.getParentFile().mkdirs() && LOG.isInfoEnabled()) {
                 LOG.info(String.format("Successfully created directory: %s", metaFile.getParentFile().getPath()));
             }

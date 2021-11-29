@@ -82,17 +82,26 @@ public abstract class AbstractResourcesProcessor implements IResourcesProcessor 
     public UploadFileMeta upload(final IFileWrapper fileWrapper) throws Exception {
         String hash = DigestUtils.md5Hex(fileWrapper.getInputStream());
         UploadFileMeta fileMeta = doGetUploadFileMetaFromCache(hash);
+        IFileStorageAdapter fileStorageAdapter = getOwner().getConfig().getFileStorageAdapter();
+        boolean needAfterWriteFile = false;
         if (fileMeta == null) {
             ResourceType resourceType = ResourceType.valueOf(StringUtils.substringBefore(fileWrapper.getContentType(), URL_SEPARATOR).toUpperCase());
             fileMeta = doMatchHash(hash, resourceType);
             if (fileMeta == null) {
-                fileMeta = getOwner().getConfig().getFileStorageAdapter().writeFile(hash, fileWrapper);
+                fileMeta = fileStorageAdapter.writeFile(hash, fileWrapper);
                 if (fileMeta != null) {
                     doPutElementToCache(hash, fileMeta);
                     //
                     owner.getOwner().getEvents().fireEvent(new FileUploadEvent(owner, FileUploadEvent.EVENT.FILE_UPLOADED_CREATE).setEventSource(fileMeta));
                 }
+            } else {
+                needAfterWriteFile = true;
             }
+        } else {
+            needAfterWriteFile = true;
+        }
+        if (needAfterWriteFile) {
+            fileStorageAdapter.doAfterWriteFile(fileMeta.getType(), fileWrapper.getFile(), UploadFileMeta.buildSourcePath(fileMeta.getType(), hash), fileStorageAdapter.getThumbStoragePath().getPath(), fileMeta.getHash());
         }
         return fileMeta;
     }

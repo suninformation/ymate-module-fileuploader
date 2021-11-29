@@ -112,6 +112,11 @@ public @interface FileUploaderConf {
     String proxyServiceAuthKey() default StringUtils.EMPTY;
 
     /**
+     * @return 文件上传成功后是否自动执行生成图片或视频截图缩略图, 默认值: false
+     */
+    boolean thumbCreateOnUploaded() default false;
+
+    /**
      * @return 是否允许自定义缩略图尺寸, 默认值: false
      */
     boolean allowCustomThumbSize() default false;

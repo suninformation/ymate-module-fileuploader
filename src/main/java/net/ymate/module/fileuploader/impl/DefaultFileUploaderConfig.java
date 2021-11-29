@@ -17,6 +17,7 @@ package net.ymate.module.fileuploader.impl;
 
 import net.ymate.module.fileuploader.*;
 import net.ymate.module.fileuploader.annotation.FileUploaderConf;
+import net.ymate.platform.commons.util.ImageUtils;
 import net.ymate.platform.core.configuration.IConfigReader;
 import net.ymate.platform.core.module.IModuleConfigurer;
 import net.ymate.platform.webmvc.base.Type;
@@ -66,6 +67,8 @@ public final class DefaultFileUploaderConfig implements IFileUploaderConfig {
     private String proxyServiceBaseUrl;
 
     private String proxyServiceAuthKey;
+
+    private boolean thumbCreateOnUploaded;
 
     private boolean allowCustomThumbSize;
 
@@ -118,6 +121,7 @@ public final class DefaultFileUploaderConfig implements IFileUploaderConfig {
         proxyServiceBaseUrl = StringUtils.trimToNull(configReader.getString(PROXY_SERVICE_BASE_URL, confAnn != null ? confAnn.proxyServiceBaseUrl() : null));
         proxyServiceAuthKey = StringUtils.trimToEmpty(configReader.getString(PROXY_SERVICE_AUTH_KEY, confAnn != null ? confAnn.proxyServiceAuthKey() : null));
         //
+        thumbCreateOnUploaded = configReader.getBoolean(THUMB_CREATE_ON_UPLOADED, confAnn != null && confAnn.thumbCreateOnUploaded());
         allowCustomThumbSize = configReader.getBoolean(ALLOW_CUSTOM_THUMB_SIZE, confAnn != null && confAnn.allowCustomThumbSize());
         //
         String[] tmpArr = configReader.getArray(THUMB_SIZE_LIST, confAnn != null ? confAnn.thumbSizeList() : null);
@@ -175,7 +179,7 @@ public final class DefaultFileUploaderConfig implements IFileUploaderConfig {
                     resourcesCacheTimeout = ONE_YEAR_SECONDS;
                 }
                 if (imageProcessor == null) {
-                    imageProcessor = new DefaultImageProcessor();
+                    imageProcessor = (source, dist, width, height, quality, format) -> ImageUtils.resize(source, dist, width, height, quality);
                 }
             }
             initialized = true;
@@ -364,6 +368,17 @@ public final class DefaultFileUploaderConfig implements IFileUploaderConfig {
     }
 
     @Override
+    public boolean isThumbCreateOnUploaded() {
+        return thumbCreateOnUploaded;
+    }
+
+    public void setThumbCreateOnUploaded(boolean thumbCreateOnUploaded) {
+        if (!initialized) {
+            this.thumbCreateOnUploaded = thumbCreateOnUploaded;
+        }
+    }
+
+    @Override
     public boolean isAllowCustomThumbSize() {
         return allowCustomThumbSize;
     }
@@ -505,6 +520,11 @@ public final class DefaultFileUploaderConfig implements IFileUploaderConfig {
 
         public Builder proxyServiceAuthKey(String proxyServiceAuthKey) {
             config.setProxyServiceAuthKey(proxyServiceAuthKey);
+            return this;
+        }
+
+        public Builder thumbCreateOnUploaded(boolean thumbCreateOnUploaded) {
+            config.setThumbCreateOnUploaded(thumbCreateOnUploaded);
             return this;
         }
 

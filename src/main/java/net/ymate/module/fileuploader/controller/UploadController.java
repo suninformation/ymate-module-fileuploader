@@ -60,13 +60,11 @@ public class UploadController {
     }
 
     @RequestMapping(value = "/chunk/match", method = {Type.HttpMethod.POST, Type.HttpMethod.OPTIONS})
-    @FileUpload
     public IView doChunkMatch() {
         return HttpStatusView.BAD_REQUEST;
     }
 
     @RequestMapping(value = "/chunk/merge", method = {Type.HttpMethod.POST, Type.HttpMethod.OPTIONS})
-    @FileUpload
     public IView doChunkMerge() {
         return HttpStatusView.BAD_REQUEST;
     }
