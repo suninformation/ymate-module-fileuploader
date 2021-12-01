@@ -195,6 +195,7 @@ public final class FileUploader implements IModule, IFileUploader {
     private String doBuildResourceUrl(String hash, ResourceType type, String sourcePath) {
         String resourcesBaseUrl = config.getResourcesBaseUrl();
         if (resourcesBaseUrl != null) {
+            // 当启用静态资源引用基准URL路径时，nodeId配置项将失效，此时可以手工将其包含在URL路径中
             sourcePath = StringUtils.replaceChars(sourcePath, File.separatorChar, '/');
             if (StringUtils.startsWith(sourcePath, IResourcesProcessor.URL_SEPARATOR)) {
                 sourcePath = StringUtils.substringAfter(sourcePath, IResourcesProcessor.URL_SEPARATOR);

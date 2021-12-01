@@ -178,6 +178,11 @@ public class UploadController {
     private String doFixedResourceUrl(String resourceUrl) {
         if (StringUtils.isNotBlank(resourceUrl) && !StringUtils.startsWithAny(resourceUrl, new String[]{Type.Const.HTTP_PREFIX, Type.Const.HTTPS_PREFIX})) {
             String servicePrefix = WebUtils.fixUrl(fileUploader.getConfig().getServicePrefix(), true, false);
+            // 可通过 nodeId 配合 Nginx 等进行负载均衡路由
+            String nodeId = fileUploader.getConfig().getNodeId();
+            if (!StringUtils.equalsIgnoreCase(Type.Const.UNKNOWN, nodeId)) {
+                servicePrefix = String.format("/%s%s", nodeId, servicePrefix);
+            }
             return WebUtils.buildUrl(WebContext.getRequest(), String.format("%s/uploads/resources/%s", servicePrefix, resourceUrl), true);
         }
         return resourceUrl;
