@@ -238,32 +238,36 @@ public abstract class AbstractFileStorageAdapter implements IFileStorageAdapter 
             throw new NullArgumentException("distDir");
         }
         if (bufferedImg != null) {
-            int originWidth = bufferedImg.getWidth();
-            int originHeight = bufferedImg.getHeight();
-            // 调整宽高参数, 超出原图将不处理
-            int resizeWidth = Math.min(width, originWidth);
-            int resizeHeight = Math.min(height, originHeight);
-            if (resizeWidth <= 0 && resizeHeight <= 0) {
-                resizeWidth = originWidth;
-                resizeHeight = originHeight;
-            } else if (resizeWidth <= 0) {
-                resizeWidth = -1;
-            } else if (resizeHeight <= 0) {
-                resizeHeight = -1;
-            }
-            //
-            String extension = StringUtils.trimToNull(FileUtils.getExtName(fileName));
-            if (StringUtils.isNotBlank(extension)) {
-                distDir = doCheckAndFixStorageDir("distDir", distDir, false);
-                File thumbFile = new File(distDir, doBuildThumbFileName(fileName, extension, width, height));
-                if (!thumbFile.exists()) {
-                    if (!owner.getConfig().getImageProcessor().resize(bufferedImg, thumbFile, resizeWidth, resizeHeight, doGetQuality(), extension)) {
-                        return null;
-                    } else if (LOG.isInfoEnabled()) {
-                        LOG.info(String.format("Successfully created thumbnail file: %s", thumbFile.getPath()));
-                    }
+            width = Math.max(width, 0);
+            height = Math.max(height, 0);
+            if (width > 0 || height > 0) {
+                int originWidth = bufferedImg.getWidth();
+                int originHeight = bufferedImg.getHeight();
+                // 调整宽高参数, 超出原图将不处理
+                int resizeWidth = Math.min(width, originWidth);
+                int resizeHeight = Math.min(height, originHeight);
+                if (resizeWidth <= 0 && resizeHeight <= 0) {
+                    resizeWidth = originWidth;
+                    resizeHeight = originHeight;
+                } else if (resizeWidth <= 0) {
+                    resizeWidth = -1;
+                } else if (resizeHeight <= 0) {
+                    resizeHeight = -1;
                 }
-                return thumbFile;
+                //
+                String extension = StringUtils.trimToNull(FileUtils.getExtName(fileName));
+                if (StringUtils.isNotBlank(extension)) {
+                    distDir = doCheckAndFixStorageDir("distDir", distDir, false);
+                    File thumbFile = new File(distDir, doBuildThumbFileName(fileName, extension, width, height));
+                    if (!thumbFile.exists()) {
+                        if (!owner.getConfig().getImageProcessor().resize(bufferedImg, thumbFile, resizeWidth, resizeHeight, doGetQuality(), extension)) {
+                            return null;
+                        } else if (LOG.isInfoEnabled()) {
+                            LOG.info(String.format("Successfully created thumbnail file: %s", thumbFile.getPath()));
+                        }
+                    }
+                    return thumbFile;
+                }
             }
         }
         return null;
