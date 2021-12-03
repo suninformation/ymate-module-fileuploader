@@ -19,11 +19,6 @@ import net.ymate.module.fileuploader.controller.UploadController;
 import net.ymate.module.fileuploader.impl.DefaultFileUploaderConfig;
 import net.ymate.platform.cache.Caches;
 import net.ymate.platform.cache.ICache;
-import net.ymate.platform.commons.exception.ServiceException;
-import net.ymate.platform.commons.exception.ServiceStatusException;
-import net.ymate.platform.commons.http.HttpRequestBuilder;
-import net.ymate.platform.commons.http.IHttpResponse;
-import net.ymate.platform.commons.json.JsonWrapper;
 import net.ymate.platform.commons.lang.BlurObject;
 import net.ymate.platform.commons.util.*;
 import net.ymate.platform.core.*;
@@ -31,15 +26,11 @@ import net.ymate.platform.core.module.IModule;
 import net.ymate.platform.core.module.IModuleConfigurer;
 import net.ymate.platform.core.module.impl.DefaultModuleConfigurer;
 import net.ymate.platform.webmvc.IWebMvc;
-import net.ymate.platform.webmvc.IWebResult;
 import net.ymate.platform.webmvc.WebMVC;
-import net.ymate.platform.webmvc.util.WebResult;
-import net.ymate.platform.webmvc.util.WebUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import javax.servlet.http.HttpServletResponse;
 import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
@@ -73,6 +64,8 @@ public final class FileUploader implements IModule, IFileUploader {
     private IFileUploaderConfig config;
 
     private ICache fileHashCache;
+
+    private IFileUploaderClient fileUploaderClient;
 
     private boolean initialized;
 
@@ -135,6 +128,12 @@ public final class FileUploader implements IModule, IFileUploader {
                 if (!config.isProxyMode()) {
                     config.getFileStorageAdapter().initialize(this);
                     config.getResourcesProcessor().initialize(this);
+                } else {
+                    String serviceBaseUrl = String.format("%s%s", config.getProxyServiceBaseUrl(), ParamUtils.fixUrl(config.getServicePrefix(), false, true));
+                    fileUploaderClient = FileUploaderClient.create(FileUploaderClientConfigBuilder.create()
+                            .serviceBaseUrl(serviceBaseUrl)
+                            .serviceAuthKey(config.getProxyServiceAuthKey())
+                            .build());
                 }
                 if (config.isServiceEnabled()) {
                     IWebMvc module = owner.getModuleManager().getModule(WebMVC.class);
@@ -207,14 +206,14 @@ public final class FileUploader implements IModule, IFileUploader {
 
     @Override
     public UploadFileMeta upload(IFileWrapper fileWrapper) throws Exception {
-        // 检查上传的文件ContentType是否在允许列表中
-        if (!config.getAllowContentTypes().isEmpty() && !config.getAllowContentTypes().contains(fileWrapper.getContentType())) {
-            throw new ContentTypeNotAllowException("Upload file content type is not allowed.");
-        }
         UploadFileMeta returnValue = null;
         IResourcesProcessor resourcesProcessor = config.getResourcesProcessor();
         // 非代理模式
         if (!config.isProxyMode()) {
+            // 检查上传的文件ContentType是否在允许列表中
+            if (!config.getAllowContentTypes().isEmpty() && !config.getAllowContentTypes().contains(fileWrapper.getContentType())) {
+                throw new ContentTypeNotAllowException("Upload file content type is not allowed.");
+            }
             returnValue = resourcesProcessor.upload(fileWrapper);
             if (returnValue != null) {
                 returnValue.setUrl(doBuildResourceUrl(returnValue.getHash(), returnValue.getType(), returnValue.getSourcePath()));
@@ -230,32 +229,7 @@ public final class FileUploader implements IModule, IFileUploader {
                 }
             }
             if (useDefault) {
-                String serviceUrl = String.format("%s%s%s", config.getProxyServiceBaseUrl(), WebUtils.fixUrl(config.getServicePrefix(), false, true), "uploads/push");
-                Map<String, String> requestParams = new HashMap<>(3);
-                requestParams.put("format", "json");
-                if (StringUtils.isNotBlank(config.getProxyServiceAuthKey())) {
-                    requestParams.put("nonce", UUIDUtils.randomStr(16, false));
-                    requestParams.put("sign", ParamUtils.createSignature(requestParams, false, true, config.getProxyServiceAuthKey()));
-                }
-                try (IHttpResponse httpResponse = HttpRequestBuilder.create(serviceUrl)
-                        .addParams(requestParams)
-                        .addBody("file", fileWrapper.toContentBody()).build().post()) {
-                    if (httpResponse != null) {
-                        if (httpResponse.getStatusCode() == HttpServletResponse.SC_OK) {
-                            IWebResult<?> result = WebResult.builder().fromJson(httpResponse.getContent()).build();
-                            if (result.isSuccess()) {
-                                JsonWrapper data = JsonWrapper.toJson(result.data());
-                                if (data != null && data.isJsonObject()) {
-                                    returnValue = JsonWrapper.deserialize(data.getAsJsonObject().toString(), UploadFileMeta.class);
-                                }
-                            } else {
-                                throw new ServiceException(BlurObject.bind(result.code()).toIntValue(), result.msg());
-                            }
-                        } else {
-                            throw new ServiceStatusException(httpResponse.getStatusCode(), httpResponse.getContent());
-                        }
-                    }
-                }
+                returnValue = fileUploaderClient.upload(fileWrapper);
             }
         }
         return returnValue;
@@ -282,33 +256,7 @@ public final class FileUploader implements IModule, IFileUploader {
                 }
             }
             if (useDefault) {
-                String serviceUrl = String.format("%s%s%s", config.getProxyServiceBaseUrl(), WebUtils.fixUrl(config.getServicePrefix(), false, true), "uploads/match");
-                Map<String, String> requestParams = new HashMap<>(3);
-                requestParams.put("format", "json");
-                requestParams.put("hash", hash);
-                if (StringUtils.isNotBlank(config.getProxyServiceAuthKey())) {
-                    requestParams.put("nonce", UUIDUtils.randomStr(16, false));
-                    requestParams.put("sign", ParamUtils.createSignature(requestParams, false, true, config.getProxyServiceAuthKey()));
-                }
-                try (IHttpResponse httpResponse = HttpRequestBuilder.create(serviceUrl).addParams(requestParams).build().post()) {
-                    if (httpResponse != null) {
-                        if (httpResponse.getStatusCode() == HttpServletResponse.SC_OK) {
-                            IWebResult<?> result = WebResult.builder().fromJson(httpResponse.getContent()).build();
-                            if (result.isSuccess()) {
-                                if (BlurObject.bind(result.attr("matched")).toBooleanValue()) {
-                                    JsonWrapper data = JsonWrapper.toJson(result.data());
-                                    if (data != null && data.isJsonObject()) {
-                                        returnValue = JsonWrapper.deserialize(data.getAsJsonObject().toString(), UploadFileMeta.class);
-                                    }
-                                }
-                            } else {
-                                throw new ServiceException(BlurObject.bind(result.code()).toIntValue(), result.msg());
-                            }
-                        } else {
-                            throw new ServiceStatusException(httpResponse.getStatusCode(), httpResponse.getContent());
-                        }
-                    }
-                }
+                returnValue = fileUploaderClient.match(hash);
             }
         }
         return returnValue;
@@ -356,6 +304,8 @@ public final class FileUploader implements IModule, IFileUploader {
                     return new IFileWrapper.Default(resourceFileMeta.getSourcePath(), resourceFileMeta.getMimeType(), resourceFile, resourceFileMeta.getLastModifyTime());
                 }
             }
+        } else {
+            return fileUploaderClient.resources(resourceType, hash);
         }
         return null;
     }

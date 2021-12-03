@@ -7,7 +7,7 @@
 > - 支持视频文件截图；
 > - 支持上传文件`ContentType`白名单过滤；
 > - 支持主从负载模式配置；
-> - 支持自定义响应报文内容(如:百度编辑器文件上传成功响应JSON报文结构)；
+> - 支持自定义响应报文内容；
 > - 支持自定义扩展文件存储策略；
 > - 支持跨域上传文件及用户身份验证；
 
@@ -69,6 +69,9 @@ ymp.configs.module.fileuploader.image_processor_class=
 # 资源处理器类, 用于资源上传、匹配及验证被访问资源是否允许(非代理模式则此项必填), 此类需实现net.ymate.module.fileuploader.IResourcesProcessor接口
 ymp.configs.module.fileuploader.resources_processor_class=
 
+# 文件上传成功后是否自动执行生成图片或视频截图缩略图, 默认值: false
+ymp.configs.module.fileuploader.thumb_create_on_uploaded=
+
 # 是否允许自定义缩略图尺寸, 默认值: false
 ymp.configs.module.fileuploader.allow_custom_thumb_size=
 
@@ -87,78 +90,77 @@ ymp.configs.module.fileuploader.allow_content_types=
 - 上传文件，以POST方式请求URL地址：
 
         http://localhost:8080/uploads/push
-    
+
     > 参数说明：
     >
     > - file: 上传文件流数据；
-    > - type: 指定请求结果处理器，若未提供则采用默认，可选值：`fileupload`、`baidu` 
-    
+    > - type: 指定请求结果处理器，若未提供则采用默认，可选值： `fileupload`
+
     响应：
-    
+
     - 未指定`type`参数：
-    
+
     ```json
     {
         "ret": 0,
         "data": {
-            "filename": "37.jpg",
-            "hash": "5ce4f1f76048cdb19a492a76fd3b31b4",
-            "size": 2582,
-            "title": "37",
-            "type": "IMAGE",
-            "url": "http://localhost:8080/uploads/resources/image/5ce4f1f76048cdb19a492a76fd3b31b4"
+            "createTime": 1638200758000,
+            "extension": "mp4",
+            "filename": "a1175d94f245b9a142955b42ac285dc2.mp4",
+            "hash": "a1175d94f245b9a142955b42ac285dc2",
+            "lastModifyTime": 1638200758000,
+            "mimeType": "video/mp4",
+            "size": 21672966,
+            "sourcePath": "video/a1/17/a1175d94f245b9a142955b42ac285dc2.mp4",
+            "status": 0,
+            "type": "VIDEO",
+            "url": "http://localhost:8080/uploads/resources/video/a1175d94f245b9a142955b42ac285dc2"
         }
     }
     ```
-    
+
     - 指定`type=fileupload`：
-    
+
     ```json
     {
         "files": [
             {
-                "size": 2582,
-                "name": "37.jpg",
-                "type": "image",
-                "hash": "5ce4f1f76048cdb19a492a76fd3b31b4",
-                "thumbnailUrl": "http://localhost:8080/uploads/resources/image/5ce4f1f76048cdb19a492a76fd3b31b4"
+                "size": 21672966,
+                "name": "a1175d94f245b9a142955b42ac285dc2.mp4",
+                "type": "video",
+                "hash": "a1175d94f245b9a142955b42ac285dc2",
+                "thumbnailUrl": "http://localhost:8080/uploads/resources/video/a1175d94f245b9a142955b42ac285dc2"
             }
         ]
-    }
-    ```
-    
-    - 指定`type=baidu`：
-    
-    ```json
-    {
-        "size": 2582,
-        "state": "SUCCESS",
-        "title": "37",
-        "url": "http://localhost:8080/uploads/resources/image/5ce4f1f76048cdb19a492a76fd3b31b4"
     }
     ```
 
 - 文件指纹匹配，以POST方式请求URL地址：
 
         http://localhost:8080/uploads/match
-    
+
     > 参数说明：
     >
     > - hash: 文件哈希值(MD5)，必选参数；
-    
+
     返回值：若匹配成功则返回该文件的描述信息；
-    
+
     ```json
     {
         "ret": 0,
         "matched": true,
         "data": {
-            "filename": "5ce4f1f76048cdb19a492a76fd3b31b4.jpg",
-            "hash": "5ce4f1f76048cdb19a492a76fd3b31b4",
-            "size": 2582,
-            "title": "5ce4f1f76048cdb19a492a76fd3b31b4",
-            "type": "IMAGE",
-            "url": "http://localhost:8080/uploads/resources/image/5ce4f1f76048cdb19a492a76fd3b31b4"
+            "createTime": 1638200758000,
+            "extension": "mp4",
+            "filename": "a1175d94f245b9a142955b42ac285dc2.mp4",
+            "hash": "a1175d94f245b9a142955b42ac285dc2",
+            "lastModifyTime": 1638200758000,
+            "mimeType": "video/mp4",
+            "size": 21672966,
+            "sourcePath": "video/a1/17/a1175d94f245b9a142955b42ac285dc2.mp4",
+            "status": 0,
+            "type": "VIDEO",
+            "url": "http://localhost:8080/uploads/resources/video/a1175d94f245b9a142955b42ac285dc2"
         }
     }
     ```

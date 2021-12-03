@@ -18,10 +18,10 @@ package net.ymate.module.fileuploader.impl;
 import net.ymate.module.fileuploader.*;
 import net.ymate.module.fileuploader.annotation.FileUploaderConf;
 import net.ymate.platform.commons.util.ImageUtils;
+import net.ymate.platform.commons.util.ParamUtils;
 import net.ymate.platform.core.configuration.IConfigReader;
 import net.ymate.platform.core.module.IModuleConfigurer;
 import net.ymate.platform.webmvc.base.Type;
-import net.ymate.platform.webmvc.util.WebUtils;
 import org.apache.commons.lang.NullArgumentException;
 import org.apache.commons.lang3.StringUtils;
 
@@ -164,16 +164,16 @@ public final class DefaultFileUploaderConfig implements IFileUploaderConfig {
                     }
                 } else {
                     if (proxyServiceBaseUrl != null) {
-                        proxyServiceBaseUrl = WebUtils.fixUrlWithProtocol(proxyServiceBaseUrl, true);
+                        proxyServiceBaseUrl = ParamUtils.fixUrlWithProtocol(proxyServiceBaseUrl, true);
                     } else {
                         throw new NullArgumentException(PROXY_SERVICE_BASE_URL);
                     }
                 }
                 if (servicePrefix != null) {
-                    servicePrefix = WebUtils.fixUrl(servicePrefix, false, false);
+                    servicePrefix = ParamUtils.fixUrl(servicePrefix, false, false);
                 }
                 if (resourcesBaseUrl != null) {
-                    resourcesBaseUrl = WebUtils.fixUrlWithProtocol(resourcesBaseUrl, true);
+                    resourcesBaseUrl = ParamUtils.fixUrlWithProtocol(resourcesBaseUrl, true);
                 }
                 if (resourcesCacheTimeout <= 0 || resourcesCacheTimeout > ONE_YEAR_SECONDS) {
                     resourcesCacheTimeout = ONE_YEAR_SECONDS;
