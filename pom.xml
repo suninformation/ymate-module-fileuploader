@@ -5,11 +5,11 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>net.ymate.module</groupId>
-    <artifactId>ymate-fileuploader-parent-parent</artifactId>
+    <artifactId>ymate-fileuploader-parent</artifactId>
     <version>2.0.0</version>
     <packaging>pom</packaging>
 
-    <name>ymate-fileuploader-parent-parent</name>
+    <name>ymate-fileuploader-parent</name>
     <url>https://www.ymate.net/</url>
     <description>YMP FileUploader Parent</description>
 
