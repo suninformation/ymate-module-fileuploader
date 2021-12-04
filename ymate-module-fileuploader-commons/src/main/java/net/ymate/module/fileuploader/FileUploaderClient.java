@@ -25,7 +25,6 @@ import net.ymate.platform.commons.json.IJsonObjectWrapper;
 import net.ymate.platform.commons.json.JsonWrapper;
 import net.ymate.platform.commons.util.ClassUtils;
 import net.ymate.platform.commons.util.ParamUtils;
-import net.ymate.platform.commons.util.UUIDUtils;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
@@ -133,7 +132,7 @@ public class FileUploaderClient implements IFileUploaderClient {
             requestParams.put("hash", hash);
         }
         if (StringUtils.isNotBlank(clientConfig.getServiceAuthKey())) {
-            requestParams.put("nonce", UUIDUtils.randomStr(16, false));
+            requestParams.put("nonce", ParamUtils.createNonceStr());
             requestParams.put("sign", ParamUtils.createSignature(requestParams, false, true, clientConfig.getServiceAuthKey()));
         }
         return requestParams;
