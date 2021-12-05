@@ -17,6 +17,7 @@ package net.ymate.module.fileuploader.controller;
 
 import net.ymate.module.fileuploader.*;
 import net.ymate.module.fileuploader.support.FileUploadSignatureValidator;
+import net.ymate.platform.commons.util.ParamUtils;
 import net.ymate.platform.core.beans.annotation.Inject;
 import net.ymate.platform.validation.validate.VDataRange;
 import net.ymate.platform.validation.validate.VLength;
@@ -177,7 +178,7 @@ public class UploadController {
 
     private String doFixedResourceUrl(String resourceUrl) {
         if (StringUtils.isNotBlank(resourceUrl) && !StringUtils.startsWithAny(resourceUrl, new String[]{Type.Const.HTTP_PREFIX, Type.Const.HTTPS_PREFIX})) {
-            String servicePrefix = WebUtils.fixUrl(fileUploader.getConfig().getServicePrefix(), true, false);
+            String servicePrefix = ParamUtils.fixUrl(fileUploader.getConfig().getServicePrefix(), true, false);
             // 可通过 nodeId 配合 Nginx 等进行负载均衡路由
             String nodeId = fileUploader.getConfig().getNodeId();
             if (!StringUtils.equalsIgnoreCase(Type.Const.UNKNOWN, nodeId)) {
