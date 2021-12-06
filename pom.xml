@@ -206,7 +206,6 @@
                 <groupId>net.ymate.platform</groupId>
                 <artifactId>ymate-platform-persistence-mongodb</artifactId>
                 <version>${ymate.platform.version}</version>
-                <scope>provided</scope>
             </dependency>
         </dependencies>
     </dependencyManagement>
