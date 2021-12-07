@@ -15,10 +15,7 @@
  */
 package net.ymate.module.fileuploader.impl;
 
-import net.ymate.module.fileuploader.AbstractResourcesProcessor;
-import net.ymate.module.fileuploader.IFileWrapper;
-import net.ymate.module.fileuploader.ResourceType;
-import net.ymate.module.fileuploader.UploadFileMeta;
+import net.ymate.module.fileuploader.*;
 import net.ymate.platform.commons.json.JsonWrapper;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -41,7 +38,8 @@ public class DefaultResourcesProcessor extends AbstractResourcesProcessor {
 
     private UploadFileMeta doReadFileMeta(String hash, String sourcePath, ResourceType resourceType) throws Exception {
         UploadFileMeta fileMeta = null;
-        File metaFile = new File(getOwner().getConfig().getFileStoragePath(), String.format("%s/%s/.metadata/%s", resourceType.name().toLowerCase(), sourcePath, hash));
+        IFileStorageAdapter storageAdapter = getOwner().getConfig().getFileStorageAdapter();
+        File metaFile = new File(storageAdapter.getThumbStoragePath(), String.format("%s/%s/.metadata/%s", resourceType.name().toLowerCase(), sourcePath, hash));
         if (metaFile.exists()) {
             fileMeta = JsonWrapper.deserialize(IOUtils.toString(new FileInputStream(metaFile), StandardCharsets.UTF_8), UploadFileMeta.class);
         }
@@ -72,7 +70,8 @@ public class DefaultResourcesProcessor extends AbstractResourcesProcessor {
         UploadFileMeta fileMeta = super.upload(fileWrapper);
         if (fileMeta != null) {
             String sourcePath = StringUtils.substringBeforeLast(fileMeta.getSourcePath(), URL_SEPARATOR);
-            File metaFile = new File(getOwner().getConfig().getFileStoragePath(), String.format("%s/.metadata/%s", sourcePath, fileMeta.getHash()));
+            IFileStorageAdapter storageAdapter = getOwner().getConfig().getFileStorageAdapter();
+            File metaFile = new File(storageAdapter.getThumbStoragePath(), String.format("%s/.metadata/%s", sourcePath, fileMeta.getHash()));
             if (metaFile.getParentFile().mkdirs() && LOG.isInfoEnabled()) {
                 LOG.info(String.format("Successfully created directory: %s", metaFile.getParentFile().getPath()));
             }
