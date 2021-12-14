@@ -16,6 +16,7 @@
     <modules>
         <module>ymate-module-fileuploader</module>
         <module>ymate-module-fileuploader-commons</module>
+        <module>ymate-module-fileuploader-mongodb</module>
     </modules>
 
     <properties>
@@ -34,7 +35,7 @@
     <licenses>
         <license>
             <name>The Apache Software License, Version 2.0</name>
-            <url>http://apache.org/licenses/LICENSE-2.0.txt</url>
+            <url>https://apache.org/licenses/LICENSE-2.0.txt</url>
         </license>
     </licenses>
 

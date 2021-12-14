@@ -17,6 +17,7 @@ package net.ymate.module.fileuploader.impl;
 
 import net.ymate.module.fileuploader.*;
 import net.ymate.module.fileuploader.annotation.FileUploaderConf;
+import net.ymate.platform.commons.util.ClassUtils;
 import net.ymate.platform.commons.util.ImageUtils;
 import net.ymate.platform.commons.util.ParamUtils;
 import net.ymate.platform.core.configuration.IConfigReader;
@@ -157,10 +158,10 @@ public final class DefaultFileUploaderConfig implements IFileUploaderConfig {
             if (enabled) {
                 if (!proxyMode) {
                     if (resourcesProcessor == null) {
-                        resourcesProcessor = new DefaultResourcesProcessor();
+                        resourcesProcessor = ClassUtils.loadClass(IResourcesProcessor.class, DefaultResourcesProcessor.class);
                     }
                     if (fileStorageAdapter == null) {
-                        fileStorageAdapter = new DefaultFileStorageAdapter();
+                        fileStorageAdapter = ClassUtils.loadClass(IFileStorageAdapter.class, DefaultFileStorageAdapter.class);
                     }
                 } else {
                     if (proxyServiceBaseUrl != null) {
@@ -179,7 +180,10 @@ public final class DefaultFileUploaderConfig implements IFileUploaderConfig {
                     resourcesCacheTimeout = ONE_YEAR_SECONDS;
                 }
                 if (imageProcessor == null) {
-                    imageProcessor = (source, dist, width, height, quality, format) -> ImageUtils.resize(source, dist, width, height, quality);
+                    imageProcessor = ClassUtils.loadClass(IImageProcessor.class);
+                    if (imageProcessor == null) {
+                        imageProcessor = (source, dist, width, height, quality, format) -> ImageUtils.resize(source, dist, width, height, quality);
+                    }
                 }
             }
             initialized = true;

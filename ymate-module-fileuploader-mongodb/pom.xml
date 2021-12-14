@@ -10,12 +10,12 @@
         <version>2.0.0</version>
     </parent>
 
-    <artifactId>ymate-module-fileuploader-commons</artifactId>
+    <artifactId>ymate-module-fileuploader-mongodb</artifactId>
     <packaging>jar</packaging>
 
-    <name>ymate-module-fileuploader-commons</name>
+    <name>ymate-module-fileuploader-mongodb</name>
     <url>https://www.ymate.net/</url>
-    <description>YMP FileUploader Commons</description>
+    <description>YMP FileUploader With MongoDB</description>
 
     <build>
         <resources>
@@ -38,7 +38,7 @@
                         <archive>
                             <manifestSections>
                                 <manifestSection>
-                                    <name>net/ymate/module/fileuploader/commons/</name>
+                                    <name>net/ymate/module/fileuploader/mongodb/</name>
                                 </manifestSection>
                             </manifestSections>
                             <manifestEntries>
@@ -60,12 +60,13 @@
             <artifactId>junit</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.apache.httpcomponents</groupId>
-            <artifactId>httpmime</artifactId>
+            <groupId>net.ymate.platform</groupId>
+            <artifactId>ymate-platform-persistence-mongodb</artifactId>
         </dependency>
         <dependency>
-            <groupId>net.ymate.platform</groupId>
-            <artifactId>ymate-platform-commons</artifactId>
+            <groupId>net.ymate.module</groupId>
+            <artifactId>ymate-module-fileuploader</artifactId>
+            <version>${project.version}</version>
         </dependency>
     </dependencies>
 </project>
