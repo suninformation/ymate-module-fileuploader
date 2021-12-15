@@ -39,7 +39,7 @@ public class FileUploadEvent extends AbstractEventContext<IFileUploader, FileUpl
         /**
          * 文件上传(重复上传)
          */
-        FILE_UPLOADED_UPDATE,
+        FILE_UPLOADED_REPEAT,
 
         /**
          * 文件下载

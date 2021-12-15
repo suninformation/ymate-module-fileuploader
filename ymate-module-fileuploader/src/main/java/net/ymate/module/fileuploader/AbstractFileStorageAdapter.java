@@ -17,6 +17,7 @@ package net.ymate.module.fileuploader;
 
 import net.ymate.platform.commons.FFmpegHelper;
 import net.ymate.platform.commons.lang.BlurObject;
+import net.ymate.platform.commons.util.ClassUtils;
 import net.ymate.platform.commons.util.FileUtils;
 import net.ymate.platform.commons.util.RuntimeUtils;
 import org.apache.commons.lang.NullArgumentException;
@@ -29,6 +30,7 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author 刘镇 (suninformation@163.com) on 2021/11/14 11:41 上午
@@ -40,12 +42,15 @@ public abstract class AbstractFileStorageAdapter implements IFileStorageAdapter 
 
     private IFileUploader owner;
 
+    private IFileAttributeBuilder fileAttributeBuilder;
+
     private boolean initialized;
 
     @Override
     public void initialize(IFileUploader owner) throws Exception {
         if (!initialized) {
             this.owner = owner;
+            this.fileAttributeBuilder = ClassUtils.loadClass(IFileAttributeBuilder.class);
             doInitialize();
             this.initialized = true;
         }
@@ -84,6 +89,11 @@ public abstract class AbstractFileStorageAdapter implements IFileStorageAdapter 
                 }
             }
         }
+    }
+
+    @Override
+    public Map<String, Object> doBuildFileAttributes(String hash, ResourceType resourceType, IFileWrapper file) {
+        return fileAttributeBuilder != null ? fileAttributeBuilder.build(hash, resourceType, file) : null;
     }
 
     @Override

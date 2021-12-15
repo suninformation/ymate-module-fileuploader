@@ -22,6 +22,7 @@ import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 
 import java.io.Serializable;
+import java.util.Map;
 
 /**
  * 上传文件信息对象
@@ -103,6 +104,11 @@ public class UploadFileMeta implements Serializable {
      * 文件最后修改时间（毫秒）
      */
     private Long lastModifyTime;
+
+    /**
+     * 扩展属性
+     */
+    private Map<String, Object> attributes;
 
     public String getHash() {
         return hash;
@@ -192,6 +198,14 @@ public class UploadFileMeta implements Serializable {
         this.lastModifyTime = lastModifyTime;
     }
 
+    public Map<String, Object> getAttributes() {
+        return attributes;
+    }
+
+    public void setAttributes(Map<String, Object> attributes) {
+        this.attributes = attributes;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -227,6 +241,7 @@ public class UploadFileMeta implements Serializable {
                 .append("status", status)
                 .append("createTime", createTime)
                 .append("lastModifyTime", lastModifyTime)
+                .append("attributes", attributes)
                 .toString();
     }
 
@@ -306,6 +321,11 @@ public class UploadFileMeta implements Serializable {
 
         public Builder lastModifyTime(Long lastModifyTime) {
             fileMeta.setLastModifyTime(lastModifyTime);
+            return this;
+        }
+
+        public Builder attributes(Map<String, Object> attributes) {
+            fileMeta.setAttributes(attributes);
             return this;
         }
     }

@@ -91,14 +91,15 @@ public abstract class AbstractResourcesProcessor implements IResourcesProcessor 
                 fileMeta = fileStorageAdapter.writeFile(hash, fileWrapper);
                 if (fileMeta != null) {
                     doPutElementToCache(hash, fileMeta);
-                    //
                     owner.getOwner().getEvents().fireEvent(new FileUploadEvent(owner, FileUploadEvent.EVENT.FILE_UPLOADED_CREATE).setEventSource(fileMeta));
                 }
             } else {
                 needAfterWriteFile = true;
+                owner.getOwner().getEvents().fireEvent(new FileUploadEvent(owner, FileUploadEvent.EVENT.FILE_UPLOADED_REPEAT).setEventSource(fileMeta));
             }
         } else {
             needAfterWriteFile = true;
+            owner.getOwner().getEvents().fireEvent(new FileUploadEvent(owner, FileUploadEvent.EVENT.FILE_UPLOADED_REPEAT).setEventSource(fileMeta));
         }
         if (needAfterWriteFile) {
             fileStorageAdapter.doAfterWriteFile(fileMeta.getType(), fileWrapper.getFile(), UploadFileMeta.buildSourcePath(fileMeta.getType(), hash), fileStorageAdapter.getThumbStoragePath().getPath(), fileMeta.getHash());

@@ -23,6 +23,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import java.io.File;
+import java.util.Map;
 
 /**
  * @author 刘镇 (suninformation@163.com) on 2016/03/31 01:50
@@ -55,6 +56,7 @@ public class DefaultFileStorageAdapter extends AbstractFileStorageAdapter {
     @Override
     public UploadFileMeta writeFile(String hash, IFileWrapper file) throws Exception {
         ResourceType resourceType = ResourceType.valueOf(StringUtils.substringBefore(file.getContentType(), IResourcesProcessor.URL_SEPARATOR).toUpperCase());
+        Map<String, Object> attributes = doBuildFileAttributes(hash, resourceType, file);
         // 转存文件，路径格式：{TYPE_NAME}/{FILE_HASH_1-2BIT}/{FILE_HASH_3-4BIT}/{FILE_HASH_32BIT}.{EXT}
         String extension = StringUtils.trimToNull(file.getSuffix());
         String filename = StringUtils.join(new Object[]{hash, extension}, FileUtils.POINT_CHAR);
@@ -80,6 +82,7 @@ public class DefaultFileStorageAdapter extends AbstractFileStorageAdapter {
                 .sourcePath(sourcePath)
                 .createTime(lastModifyTime)
                 .lastModifyTime(lastModifyTime)
+                .attributes(attributes)
                 .build();
     }
 

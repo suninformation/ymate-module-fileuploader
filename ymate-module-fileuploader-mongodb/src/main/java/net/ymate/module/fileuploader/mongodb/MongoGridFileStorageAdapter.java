@@ -32,6 +32,7 @@ import org.bson.Document;
 
 import java.io.File;
 import java.io.InputStream;
+import java.util.Map;
 
 /**
  * @author 刘镇 (suninformation@163.com) on 2021/11/14 1:09 上午
@@ -64,6 +65,7 @@ public class MongoGridFileStorageAdapter extends AbstractFileStorageAdapter {
                     .sourcePath(metadata.getString("sourcePath"))
                     .createTime(uploadDate)
                     .lastModifyTime(uploadDate)
+                    .attributes((Document) metadata.get("attributes"))
                     .build();
         }
         return null;
@@ -103,6 +105,10 @@ public class MongoGridFileStorageAdapter extends AbstractFileStorageAdapter {
                         .append("contentType", file.getContentType())
                         .append("status", 0)
                         .append("sourcePath", sourcePath);
+                Map<String, Object> attributes = doBuildFileAttributes(hash, resourceType, file);
+                if (attributes != null && !attributes.isEmpty()) {
+                    metadata.append("attributes", new Document(attributes));
+                }
                 try (InputStream inputStream = file.getInputStream()) {
                     fsFile = session.find(session.upload(filename, inputStream, new GridFSUploadOptions().metadata(metadata)));
                 }

@@ -18,6 +18,7 @@ package net.ymate.module.fileuploader;
 import net.ymate.platform.core.support.IInitialization;
 
 import java.io.File;
+import java.util.Map;
 
 /**
  * 上传文件存储适配器接口
@@ -56,6 +57,16 @@ public interface IFileStorageAdapter extends IInitialization<IFileUploader> {
      * @param hash             文件哈希值
      */
     void doAfterWriteFile(ResourceType resourceType, File targetFile, String sourcePathDir, String thumbStoragePath, String hash);
+
+    /**
+     * 构建文件扩展属性
+     *
+     * @param hash         文件哈希值
+     * @param resourceType 资源类型
+     * @param file         上传的文件
+     * @return 返回文件扩展属性映射
+     */
+    Map<String, Object> doBuildFileAttributes(String hash, ResourceType resourceType, IFileWrapper file);
 
     /**
      * 读取文件
