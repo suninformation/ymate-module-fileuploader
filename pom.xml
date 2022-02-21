@@ -22,7 +22,7 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <ymate.platform.version>2.1.0</ymate.platform.version>
-        <ymate.maven.plugin.version>1.1-SNAPSHOT</ymate.maven.plugin.version>
+        <ymate.maven.plugin.version>1.0.0</ymate.maven.plugin.version>
     </properties>
 
     <developers>
@@ -147,7 +147,7 @@
             <dependency>
                 <groupId>junit</groupId>
                 <artifactId>junit</artifactId>
-                <version>4.13.1</version>
+                <version>4.13.2</version>
                 <scope>test</scope>
             </dependency>
             <dependency>
@@ -159,7 +159,7 @@
             <dependency>
                 <groupId>org.apache.httpcomponents</groupId>
                 <artifactId>httpmime</artifactId>
-                <version>4.5.12</version>
+                <version>4.5.13</version>
                 <exclusions>
                     <exclusion>
                         <groupId>commons-codec</groupId>
@@ -174,14 +174,14 @@
             <dependency>
                 <groupId>net.coobird</groupId>
                 <artifactId>thumbnailator</artifactId>
-                <version>0.4.14</version>
+                <version>0.4.16</version>
             </dependency>
+            <!--
             <dependency>
                 <groupId>com.madgag</groupId>
                 <artifactId>animated-gif-lib</artifactId>
                 <version>1.4</version>
             </dependency>
-            <!--
             <dependency>
                 <groupId>com.github.nintha</groupId>
                 <artifactId>webp-imageio-core</artifactId>

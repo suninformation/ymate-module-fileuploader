@@ -1,17 +1,24 @@
-### YMP-FileUploader
+# YMATE-MODULE-FILEUPLOADER
 
-> 文件上传及资源访问服务模块，特性如下：
-> 
-> - 支持文件指纹匹配，秒传；
-> - 支持图片文件多种规则等比例压缩；
-> - 支持视频文件截图；
-> - 支持上传文件`ContentType`白名单过滤；
-> - 支持主从负载模式配置；
-> - 支持自定义响应报文内容；
-> - 支持自定义扩展文件存储策略；
-> - 支持跨域上传文件及用户身份验证；
+[![Maven Central status](https://img.shields.io/maven-central/v/net.ymate.module/ymate-module-fileuploader.svg)](https://search.maven.org/artifact/net.ymate.module/ymate-module-fileuploader)
+[![LICENSE](https://img.shields.io/github/license/suninformation/ymate-module-fileuploader.svg)](https://gitee.com/suninformation/ymate-module-fileuploader/blob/master/LICENSE)
 
-#### Maven包依赖
+
+基于 YMP 框架实现的文件上传及资源访问服务模块，特性如下：
+
+- 支持文件指纹匹配，秒传；
+- 支持图片文件多种规则等比例压缩；
+- 支持视频文件截图；
+- 支持上传文件 `ContentType` 白名单过滤；
+- 支持主从负载模式配置；
+- 支持自定义响应报文内容；
+- 支持自定义扩展文件存储策略；
+- 支持跨域上传文件及用户身份验证；
+- 支持 MongoDB 文件存储；
+
+
+
+## Maven包依赖
 
 ```xml
 <dependency>
@@ -21,7 +28,10 @@
 </dependency>
 ```
 
-### 模块配置参数说明
+
+
+## 模块配置参数说明
+
 ```properties
 #-------------------------------------
 # module.fileuploader 模块初始化参数
@@ -45,7 +55,7 @@ ymp.configs.module.fileuploader.service_enabled=
 # 是否开启代理模式, 默认值: false
 ymp.configs.module.fileuploader.proxy_mode=
 
-# 代理服务基准URL路径(若开启代理模式则此项必填), 必须以'http://'或'https://'开始并以'/'结束, 如: http://www.ymate.net/fileupload/, 默认值: 空
+# 代理服务基准URL路径(若开启代理模式则此项必填), 必须以 http:// 或 https:// 开始并以'/'结束, 如: http://www.ymate.net/fileupload/, 默认值: 空
 ymp.configs.module.fileuploader.proxy_service_base_url=
 
 # 代理客户端与服务端之间通讯请求参数签名密钥, 默认值: ""
@@ -57,7 +67,7 @@ ymp.configs.module.fileuploader.file_storage_path=
 # 缩略图文件存储根路径（根据存储适配器接口实现决定其值具体含义）, 默认存储适配器取值与上传文件存储根路径值相同
 ymp.configs.module.fileuploader.thumb_storage_path=
 
-# 静态资源引用基准URL路径, 必须以'http://'或'https://'开始并以'/'结束, 如: http://www.ymate.net/static/resources/, 默认值: 空(即不使用静态资源引用路径)
+# 静态资源引用基准URL路径, 必须以 http:// 或 https:// 开始并以'/'结束, 如: http://www.ymate.net/static/resources/, 默认值: 空(即不使用静态资源引用路径)
 ymp.configs.module.fileuploader.resources_base_url=
 
 # 文件存储适配器接口实现, 若未提供则使用系统默认, 此类需实现net.ymate.module.fileuploader.IFileStorageAdapter接口
@@ -75,7 +85,7 @@ ymp.configs.module.fileuploader.thumb_create_on_uploaded=
 # 是否允许自定义缩略图尺寸, 默认值: false
 ymp.configs.module.fileuploader.allow_custom_thumb_size=
 
-# 缩略图尺寸列表, 该尺寸列表在允许自定义缩略图尺寸时生效, 若列表不为空则自定义尺寸不能超过此范围, 如: 600_480、1024_0 (0表示等比缩放, 不支持0_0), 默认值: 空
+# 缩略图尺寸列表, 该尺寸列表在允许自定义缩略图尺寸时生效, 若列表不为空则自定义尺寸不能超过此范围, 如: 600_480|1024_0 (0表示等比缩放, 不支持0_0), 默认值: 空
 ymp.configs.module.fileuploader.thumb_size_list=
 
 # 缩略图清晰度, 如: 0.70f, 默认值: 0f
@@ -85,101 +95,122 @@ ymp.configs.module.fileuploader.thumb_quality=
 ymp.configs.module.fileuploader.allow_content_types=
 ```
 
-#### 示例代码：
 
-- 上传文件，以POST方式请求URL地址：
 
-        http://localhost:8080/uploads/push
+## 示例代码：
 
-    > 参数说明：
-    >
-    > - file: 上传文件流数据；
-    > - type: 指定请求结果处理器，若未提供则采用默认，可选值： `fileupload`
+**示例一：**上传文件，以 POST 方式请求 URL 地址：
 
-    响应：
+```shell
+http://localhost:8080/uploads/push
+```
 
-    - 未指定`type`参数：
+参数说明：
 
-    ```json
-    {
-        "ret": 0,
-        "data": {
-            "createTime": 1638200758000,
-            "extension": "mp4",
-            "filename": "a1175d94f245b9a142955b42ac285dc2.mp4",
-            "hash": "a1175d94f245b9a142955b42ac285dc2",
-            "lastModifyTime": 1638200758000,
-            "mimeType": "video/mp4",
+- file: 上传文件流数据；
+- type: 指定请求结果处理器，若未提供则采用默认，可选值： `fileupload`
+
+响应：
+
+- 未指定 `type` 参数时：
+
+```json
+{
+    "ret": 0,
+    "data": {
+        "createTime": 1638200758000,
+        "extension": "mp4",
+        "filename": "a1175d94f245b9a142955b42ac285dc2.mp4",
+        "hash": "a1175d94f245b9a142955b42ac285dc2",
+        "lastModifyTime": 1638200758000,
+        "mimeType": "video/mp4",
+        "size": 21672966,
+        "sourcePath": "video/a1/17/a1175d94f245b9a142955b42ac285dc2.mp4",
+        "status": 0,
+        "type": "VIDEO",
+        "url": "http://localhost:8080/uploads/resources/video/a1175d94f245b9a142955b42ac285dc2"
+    }
+}
+```
+
+- 指定 `type=fileupload` 时：
+
+```json
+{
+    "files": [
+        {
             "size": 21672966,
-            "sourcePath": "video/a1/17/a1175d94f245b9a142955b42ac285dc2.mp4",
-            "status": 0,
-            "type": "VIDEO",
-            "url": "http://localhost:8080/uploads/resources/video/a1175d94f245b9a142955b42ac285dc2"
-        }
-    }
-    ```
-
-    - 指定`type=fileupload`：
-
-    ```json
-    {
-        "files": [
-            {
-                "size": 21672966,
-                "name": "a1175d94f245b9a142955b42ac285dc2.mp4",
-                "type": "video",
-                "hash": "a1175d94f245b9a142955b42ac285dc2",
-                "thumbnailUrl": "http://localhost:8080/uploads/resources/video/a1175d94f245b9a142955b42ac285dc2"
-            }
-        ]
-    }
-    ```
-
-- 文件指纹匹配，以POST方式请求URL地址：
-
-        http://localhost:8080/uploads/match
-
-    > 参数说明：
-    >
-    > - hash: 文件哈希值(MD5)，必选参数；
-
-    返回值：若匹配成功则返回该文件的描述信息；
-
-    ```json
-    {
-        "ret": 0,
-        "matched": true,
-        "data": {
-            "createTime": 1638200758000,
-            "extension": "mp4",
-            "filename": "a1175d94f245b9a142955b42ac285dc2.mp4",
+            "name": "a1175d94f245b9a142955b42ac285dc2.mp4",
+            "type": "video",
             "hash": "a1175d94f245b9a142955b42ac285dc2",
-            "lastModifyTime": 1638200758000,
-            "mimeType": "video/mp4",
-            "size": 21672966,
-            "sourcePath": "video/a1/17/a1175d94f245b9a142955b42ac285dc2.mp4",
-            "status": 0,
-            "type": "VIDEO",
-            "url": "http://localhost:8080/uploads/resources/video/a1175d94f245b9a142955b42ac285dc2"
+            "thumbnailUrl": "http://localhost:8080/uploads/resources/video/a1175d94f245b9a142955b42ac285dc2"
         }
+    ]
+}
+```
+
+
+
+**示例二：**文件指纹匹配，以 POST 方式请求 URL 地址：
+
+```shell
+http://localhost:8080/uploads/match
+```
+
+参数说明：
+
+- hash: 文件哈希值（MD5），必选参数；
+
+响应：
+
+若匹配成功则返回该文件的描述信息；
+
+```json
+{
+    "ret": 0,
+    "matched": true,
+    "data": {
+        "createTime": 1638200758000,
+        "extension": "mp4",
+        "filename": "a1175d94f245b9a142955b42ac285dc2.mp4",
+        "hash": "a1175d94f245b9a142955b42ac285dc2",
+        "lastModifyTime": 1638200758000,
+        "mimeType": "video/mp4",
+        "size": 21672966,
+        "sourcePath": "video/a1/17/a1175d94f245b9a142955b42ac285dc2.mp4",
+        "status": 0,
+        "type": "VIDEO",
+        "url": "http://localhost:8080/uploads/resources/video/a1175d94f245b9a142955b42ac285dc2"
     }
-    ```
+}
+```
 
-- 文件资源访问，以GET方式请求URL地址：
 
-        http://localhost:8080/uploads/resources/{type}/{hash}
 
-    > 参数说明：
-    >
-    > - type: 文件类型，必选参数，可选值范围：`image`、 `video`、`audio`、`text`、`application`、`thumb`
-    > - hash: 文件哈希值（MD5），必选参数；
-    >
-    > **注**：若需要强制浏览器下载资源，只需在请求参数中添加`?attach`即可，并支持通过?attach=<FILE_NAME>方式自定义文件名称（文件名称必须合法有效，不能包含特殊字符，否则将使用默认文件名称）。
+**示例三：**文件资源访问，以 GET 方式请求 URL 地址：
 
-#### One More Thing
+```shell
+http://localhost:8080/uploads/resources/{type}/{hash}
+```
 
-YMP不仅提供便捷的Web及其它Java项目的快速开发体验，也将不断提供更多丰富的项目实践经验。
+参数说明：
 
-感兴趣的小伙伴儿们可以加入 官方QQ群480374360，一起交流学习，帮助YMP成长！
+- type: 文件类型，必选参数，可选值范围：`image`、 `video`、`audio`、`text`、`application`、`thumb`
 
-了解更多有关YMP框架的内容，请访问官网：https://www.ymate.net/
+- hash: 文件哈希值（MD5），必选参数；
+
+> **注**：若需要强制浏览器下载资源，只需在请求参数中添加`?attach`即可，并支持通过?attach=<FILE_NAME>方式自定义文件名称（文件名称必须合法有效，不能包含特殊字符，否则将使用默认文件名称）。
+
+
+
+## One More Thing
+
+YMP 不仅提供便捷的 Web 及其它 Java 项目的快速开发体验，也将不断提供更多丰富的项目实践经验。
+
+感兴趣的小伙伴儿们可以加入官方 QQ 群：[480374360](https://qm.qq.com/cgi-bin/qm/qr?k=3KSXbRoridGeFxTVA8HZzyhwU_btZQJ2)，一起交流学习，帮助 YMP 成长！
+
+如果喜欢 YMP，希望得到你的支持和鼓励！
+
+![Donation Code](https://ymate.net/img/donation_code.png)
+
+了解更多有关 YMP 框架的内容，请访问官网：[https://ymate.net](https://ymate.net)

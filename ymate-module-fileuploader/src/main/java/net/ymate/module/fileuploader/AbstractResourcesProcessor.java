@@ -116,9 +116,10 @@ public abstract class AbstractResourcesProcessor implements IResourcesProcessor 
                 fileMeta = doMatchHash(hash, null);
                 if (fileMeta != null) {
                     doPutElementToCache(hash, fileMeta);
-                    //
-                    owner.getOwner().getEvents().fireEvent(new FileUploadEvent(owner, FileUploadEvent.EVENT.FILE_MATCHED).setEventSource(fileMeta));
                 }
+            }
+            if (fileMeta != null) {
+                owner.getOwner().getEvents().fireEvent(new FileUploadEvent(owner, FileUploadEvent.EVENT.FILE_MATCHED).setEventSource(fileMeta));
             }
         }
         return fileMeta;

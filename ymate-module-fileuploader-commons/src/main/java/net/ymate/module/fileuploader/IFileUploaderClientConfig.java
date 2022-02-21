@@ -16,6 +16,7 @@
 package net.ymate.module.fileuploader;
 
 import net.ymate.platform.commons.util.ParamUtils;
+import org.apache.commons.lang3.StringUtils;
 
 /**
  * @author 刘镇 (suninformation@163.com) on 2021/12/3 12:48 下午
@@ -50,7 +51,7 @@ public interface IFileUploaderClientConfig {
      * @return 返回完整的请求URL地址
      */
     default String buildServiceUrl(String serviceUrl) {
-        return String.format("%s%s", getServiceBaseUrl(), serviceUrl);
+        return StringUtils.join(getServiceBaseUrl(), serviceUrl);
     }
 
     /**
